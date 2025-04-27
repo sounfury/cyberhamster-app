@@ -1,0 +1,46 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+赛博仓鼠，个人书库管理app，功能为做一个私人图书馆，聚焦于简单的图书管理和阅读笔记，点滴的记录
+项目结构
+│
+├── base            // 基类（BaseActivity、BaseFragment等）
+│
+├── ui              // 界面相关（Activity、Fragment、Adapter）
+│   ├── activity
+│   │    ├── MainActivity.java
+│   │    ├── LoginActivity.java
+│   │    └── RegisterActivity.java
+│   │
+│   ├── fragment
+│   │    ├── home          // 图书管理相关
+│   │    │    ├── HomeFragment.java
+│   │    │    ├── AddBookFragment.java
+│   │    │    └── BookDetailFragment.java
+│   │    │
+│   │    ├── category      // 分类相关
+│   │    │    ├── CategoryFragment.java
+│   │    │    └── CategoryBookListFragment.java
+│   │    │
+│   │    ├── note          // 笔记相关
+│   │    │    ├── NoteFragment.java
+│   │    │    ├── AddNoteFragment.java
+│   │    │    └── NoteDetailFragment.java
+│   │    │
+│   │    ├── profile       // 个人中心
+│   │         ├── ProfileFragment.java
+│   │         └── SettingsFragment.java
+│   │
+│   └── adapter           // 列表适配器（RecyclerView.Adapter）
+│
+├── data             // 数据层
+│   ├── model         // 数据模型（如Book.java, Note.java）
+│   ├── repository    // 仓库层（封装数据操作，调用API或者数据库）
+│   └── network       // 网络请求（Retrofit接口Service定义）
+│
+├── utils            // 工具类（如图片处理，OCR工具类，时间格式化）
+│
+└── config           // 配置类（如常量、URL、全局状态管理）
+

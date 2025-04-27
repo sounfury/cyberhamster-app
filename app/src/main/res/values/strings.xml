@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">赛博仓鼠</string>
+    
+    <!-- 底部导航栏 -->
+    <string name="title_home">书库</string>
+    <string name="title_category">分类</string>
+    <string name="title_add">添加</string>
+    <string name="title_note">笔记</string>
+    <string name="title_profile">我的</string>
+    
+    <!-- 主页面 -->
+    <string name="search_hint">搜索书籍、作者…</string>
+    <string name="category_all">全部</string>
+    <string name="category_novel">小说</string>
+    <string name="category_tech">科技</string>
+    <string name="category_social">社科</string>
+    <string name="category_education">教育</string>
+    <string name="category_economics">经济</string>
+    
+    <!-- 登录注册 -->
+    <string name="login">登录</string>
+    <string name="register">注册</string>
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="confirm_password">确认密码</string>
+    <string name="forget_password">忘记密码？</string>
+    
+    <!-- 通用 -->
+    <string name="confirm">确认</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+</resources>
