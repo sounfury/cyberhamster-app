@@ -6,9 +6,7 @@ import org.sounfury.cyber_hamster.data.network.response.LoginResponse;
 import org.sounfury.cyber_hamster.data.network.response.Result;
 import org.sounfury.cyber_hamster.data.network.response.UserInfoResponse;
 
-import java.util.Map;
-
-import retrofit2.Call;
+import io.reactivex.rxjava3.core.Observable;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
@@ -28,7 +26,7 @@ public interface ApiService {
      * @return 登录响应，包含登录成功后的token和用户信息
      */
     @POST("/login")
-    Call<Result<LoginResponse>> login(@Body LoginRequest request);
+    Observable<Result<LoginResponse>> login(@Body LoginRequest request);
 
     /**
      * 用户注册
@@ -37,7 +35,7 @@ public interface ApiService {
      * @return 注册响应
      */
     @POST("/register")
-    Call<Result<Void>> register(@Body RegisterRequest request);
+    Observable<Result<Void>> register(@Body RegisterRequest request);
 
     /**
      * 获取用户信息
@@ -46,7 +44,7 @@ public interface ApiService {
      * @return 用户信息响应
      */
     @GET("/getInfo")
-    Call<Result<UserInfoResponse>> getUserInfo(@Header("token") String token);
+    Observable<Result<UserInfoResponse>> getUserInfo(@Header("token") String token);
 
     /**
      * 用户登出
@@ -55,7 +53,7 @@ public interface ApiService {
      * @return 登出响应
      */
     @POST("/logout")
-    Call<Result<Void>> logout(@Header("token") String token);
+    Observable<Result<Void>> logout(@Header("token") String token);
 
     /**
      * 检查用户名是否可用
@@ -64,7 +62,7 @@ public interface ApiService {
      * @return 用户名是否可用
      */
     @GET("/check-username")
-    Call<Result<Boolean>> checkUsername(@Query("username") String username);
+    Observable<Result<Boolean>> checkUsername(@Query("username") String username);
 
     /**
      * 修改密码
@@ -74,7 +72,7 @@ public interface ApiService {
      * @return 修改密码响应
      */
     @PUT("/changePassword")
-    Call<Result<Void>> changePassword(
+    Observable<Result<Void>> changePassword(
             @Query("newPassword") String newPassword,
             @Header("token") String token);
 } 

@@ -22,4 +22,12 @@
     </style>
 
     <style name="Theme.Cyberhamster" parent="Theme.CyberHamster" />
+    
+    <!-- 启动页主题，无ActionBar，全屏显示 -->
+    <style name="Theme.Cyberhamster.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
 </resources>

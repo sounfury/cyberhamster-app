@@ -61,6 +61,13 @@ dependencies {
 
     // Retrofit 转换器：把返回的 JSON 自动转成Java对象（Gson）
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    
+    // RxJava 适配器
+    implementation("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
+
+    // RxJava3 和 RxAndroid
+    implementation("io.reactivex.rxjava3:rxjava:3.1.5")
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
 
     // OkHttp核心库
     implementation("com.squareup.okhttp3:okhttp:4.9.3")

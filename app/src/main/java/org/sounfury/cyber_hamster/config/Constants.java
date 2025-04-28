@@ -2,9 +2,7 @@ package org.sounfury.cyber_hamster.config;
 
 public class Constants {
     
-    // API相关常量
-    public static final String BASE_URL = "https://127.0.0.1:8081/";
-    
+
     // SharedPreferences相关常量
     public static final String SHARED_PREFS_NAME = "cyber_hamster_prefs";
     public static final String KEY_USER_ID = "user_id";

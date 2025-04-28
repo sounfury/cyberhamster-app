@@ -18,6 +18,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import org.sounfury.cyber_hamster.R;
 import org.sounfury.cyber_hamster.base.BaseFragment;
+
 import org.sounfury.cyber_hamster.ui.viewmodel.UserViewModel;
 
 public class RegisterFragment extends BaseFragment {

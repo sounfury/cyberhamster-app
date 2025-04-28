@@ -1,6 +1,9 @@
 package org.sounfury.cyber_hamster.ui.fragment.profile;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,11 +12,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import org.sounfury.cyber_hamster.R;
 import org.sounfury.cyber_hamster.base.BaseFragment;
 import org.sounfury.cyber_hamster.ui.viewmodel.ProfileViewModel;
+import org.sounfury.cyber_hamster.ui.viewmodel.UserViewModel;
+import org.sounfury.cyber_hamster.utils.ImageUtils;
 
 public class ProfileFragment extends BaseFragment {
     
@@ -21,7 +27,7 @@ public class ProfileFragment extends BaseFragment {
     private TextView tvUsername;
     private TextView tvBookCount;
     private TextView tvNoteCount;
-    private ProfileViewModel viewModel;
+    private UserViewModel viewModel;
     
     @Nullable
     @Override
@@ -34,31 +40,40 @@ public class ProfileFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         
         // 初始化ViewModel
-        viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+        viewModel = new ViewModelProvider(this).get(UserViewModel.class);
         
         // 观察数据变化
         viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
                 tvUsername.setText(user.getNickname());
                 // 如果有头像，可以加载头像
+                if( user.getAvatar() == null) {
+                    ImageView ivAvatar = view.findViewById(R.id.iv_avatar);
+                    ivAvatar.setImageResource(R.drawable.ic_profile);
+                }else {
+                    //转化为Uri
+                    Log.d("ProfileFragment", "onViewCreated: "+user.getAvatar());
+                    Uri AvatarUri = Uri.parse(user.getAvatar());
+                  ImageUtils.loadImage(getContext(), user.getAvatar(), ivAvatar);
+                }
             }
         });
         
-        viewModel.getBookCount().observe(getViewLifecycleOwner(), count -> {
-            if (count != null) {
-                tvBookCount.setText("书籍: " + count);
-            }
-        });
-        
-        viewModel.getNoteCount().observe(getViewLifecycleOwner(), count -> {
-            if (count != null) {
-                tvNoteCount.setText("笔记: " + count);
-            }
-        });
-        
-        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            // 可以在这里显示或隐藏加载指示器
-        });
+//        viewModel.getBookCount().observe(getViewLifecycleOwner(), count -> {
+//            if (count != null) {
+//                tvBookCount.setText("书籍: " + count);
+//            }
+//        });
+//
+//        viewModel.getNoteCount().observe(getViewLifecycleOwner(), count -> {
+//            if (count != null) {
+//                tvNoteCount.setText("笔记: " + count);
+//            }
+//        });
+//
+//        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+//            // 可以在这里显示或隐藏加载指示器
+//        });
     }
     
     @Override

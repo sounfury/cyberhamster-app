@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import org.sounfury.cyber_hamster.data.UserManager;
 import org.sounfury.cyber_hamster.data.model.User;
 import org.sounfury.cyber_hamster.data.network.RetrofitClient;
 import org.sounfury.cyber_hamster.data.network.api.ApiService;
@@ -17,9 +18,11 @@ import org.sounfury.cyber_hamster.data.network.response.LoginResponse;
 import org.sounfury.cyber_hamster.data.network.response.Result;
 import org.sounfury.cyber_hamster.data.network.response.UserInfoResponse;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class UserRepository {
     private static final String TAG = "UserRepository";
@@ -36,6 +39,9 @@ public class UserRepository {
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>();
     private String token;
+    
+    // 用于管理RxJava订阅
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private UserRepository(Context context) {
         apiService = RetrofitClient.getInstance().getApiService();
@@ -72,6 +78,50 @@ public class UserRepository {
     }
 
     /**
+     * 检查Token和自动登录
+     * @return 返回一个Observable，表示自动登录的结果：true表示成功，false表示需要手动登录
+     */
+    public Observable<Boolean> checkTokenAndAutoLogin() {
+        // 首先检查token是否存在
+        if (!TextUtils.isEmpty(token)) {
+            // 如果token存在，尝试获取用户信息验证token有效性
+            return fetchUserInfoRx()
+                    .map(user -> {
+                        // 如果获取用户信息成功，返回true表示可以自动登录
+                        currentUser.postValue(user);
+                        return true;
+                    })
+                    .onErrorReturn(throwable -> {
+                        // 如果获取用户信息失败，清除token并返回false
+                        Log.e(TAG, "Token无效，需要重新登录", throwable);
+                        clearToken();
+                        return false;
+                    });
+        } else {
+            // 如果没有token，尝试通过保存的用户名和密码自动登录
+            boolean rememberMe = sharedPreferences.getBoolean(KEY_REMEMBER, false);
+            if (rememberMe) {
+                String username = sharedPreferences.getString(KEY_USERNAME, "");
+                String password = sharedPreferences.getString(KEY_PASSWORD, "");
+
+                if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)) {
+                    return loginRx(username, password, true)
+                            .map(user -> {
+                                currentUser.postValue(user);
+                                return true;
+                            })
+                            .onErrorReturn(throwable -> {
+                                Log.e(TAG, "自动登录失败", throwable);
+                                return false;
+                            });
+                }
+            }
+            // 没有保存的凭据或记住密码未开启
+            return Observable.just(false);
+        }
+    }
+
+    /**
      *  自动加载保存的用户名和密码
      */
     public void loadSavedCredentials() {
@@ -79,215 +129,195 @@ public class UserRepository {
         if (rememberMe) {
             String username = sharedPreferences.getString(KEY_USERNAME, "");
             String password = sharedPreferences.getString(KEY_PASSWORD, "");
-            
+
             if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)) {
                 login(username, password, true);
             }
         }
     }
 
-    public void login(String username, String password,boolean rememberMe) {
+    public void login(String username, String password, boolean rememberMe) {
         loading.setValue(true);
+        
+        Disposable disposable = loginRx(username, password, rememberMe)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        user -> {
+                            loading.setValue(false);
+                            currentUser.setValue(user);
+                        },
+                        throwable -> {
+                            loading.setValue(false);
+                            errorMessage.setValue("登录失败：" + throwable.getMessage());
+                            Log.e(TAG, "Login error", throwable);
+                        }
+                );
+        
+        compositeDisposable.add(disposable);
+    }
+    
+    private Observable<User> loginRx(String username, String password, boolean rememberMe) {
         LoginRequest request = new LoginRequest(username, password);
         
-        apiService.login(request).enqueue(new Callback<Result<LoginResponse>>() {
-            @Override
-            public void onResponse(Call<Result<LoginResponse>> call, Response<Result<LoginResponse>> response) {
-                loading.setValue(false);
-
-                if (response.isSuccessful() && response.body() != null) {
-                    Result<LoginResponse> result = response.body();
-
+        return apiService.login(request)
+                .flatMap(result -> {
                     if (result.isSuccess() && result.getData() != null) {
                         String newToken = result.getData().getToken();
                         if (!TextUtils.isEmpty(newToken)) {
                             // 保存token
                             token = newToken;
                             saveToken(token);
-
+                            
                             // 如果选择了记住密码，则保存用户名和密码
                             if (rememberMe) {
                                 saveCredentials(username, password, true);
                             } else {
                                 clearCredentials();
                             }
-
+                            
                             // 获取用户信息
-                            fetchUserInfo();
+                            return fetchUserInfoRx();
                         } else {
-                            errorMessage.setValue("登录失败：Token为空");
+                            return Observable.error(new Exception("登录失败：Token为空"));
                         }
                     } else {
-                        errorMessage.setValue("登录失败：" + result.getMessage());
+                        return Observable.error(new Exception("登录失败：" + result.getMessage()));
                     }
-                } else {
-                    errorMessage.setValue("登录失败：服务器错误");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Result<LoginResponse>> call, Throwable t) {
-                loading.setValue(false);
-                errorMessage.setValue("登录失败：" + t.getMessage());
-                Log.e(TAG, "Login error", t);
-            }
-        });
+                });
+    }
+    
+    private Observable<User> fetchUserInfoRx() {
+        if (TextUtils.isEmpty(token)) {
+            return Observable.error(new Exception("Token为空，无法获取用户信息"));
+        }
+        
+        return apiService.getUserInfo(token)
+                .map(result -> {
+                    if (result.isSuccess() && result.getData() != null 
+                            && result.getData().getLoginUser() != null) {
+                        UserManager.getInstance().setUserInfo(result.getData());
+                        return result.getData().getLoginUser();
+                    } else {
+                        throw new Exception("获取用户信息失败：" + result.getMessage());
+                    }
+                });
     }
 
     public void register(String username, String password, String email) {
         loading.setValue(true);
         RegisterRequest request = new RegisterRequest(username, password, email);
         
-        apiService.register(request).enqueue(new Callback<Result<Void>>() {
-            @Override
-            public void onResponse(Call<Result<Void>> call, Response<Result<Void>> response) {
-                loading.setValue(false);
-                
-                if (response.isSuccessful() && response.body() != null) {
-                    Result<Void> result = response.body();
-                    
+        Disposable disposable = apiService.register(request)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(result -> {
                     if (result.isSuccess()) {
                         // 注册成功，尝试登录
-                        login(username, password, false);
+                        return loginRx(username, password, false);
                     } else {
-                        errorMessage.setValue("注册失败：" + result.getMessage());
+                        return Observable.error(new Exception("注册失败：" + result.getMessage()));
                     }
-                } else {
-                    errorMessage.setValue("注册失败：服务器错误");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Result<Void>> call, Throwable t) {
-                loading.setValue(false);
-                errorMessage.setValue("注册失败：" + t.getMessage());
-                Log.e(TAG, "Register error", t);
-            }
-        });
+                })
+                .subscribe(
+                        user -> {
+                            loading.setValue(false);
+                            currentUser.setValue(user);
+                        },
+                        throwable -> {
+                            loading.setValue(false);
+                            errorMessage.setValue("注册失败：" + throwable.getMessage());
+                            Log.e(TAG, "Register error", throwable);
+                        }
+                );
+        
+        compositeDisposable.add(disposable);
     }
 
     public void checkUsername(String username) {
-        apiService.checkUsername(username).enqueue(new Callback<Result<Boolean>>() {
-            @Override
-            public void onResponse(Call<Result<Boolean>> call, Response<Result<Boolean>> response) {
-                // 处理用户名检查结果
-                // 由于这只是一个检查操作，我们不需要在这里更改任何状态
-            }
-
-            @Override
-            public void onFailure(Call<Result<Boolean>> call, Throwable t) {
-                Log.e(TAG, "Check username error", t);
-            }
-        });
+        Disposable disposable = apiService.checkUsername(username)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        result -> {
+                            // 处理用户名检查结果
+                            // 由于这只是一个检查操作，我们不需要在这里更改任何状态
+                        },
+                        throwable -> {
+                            Log.e(TAG, "Check username error", throwable);
+                        }
+                );
+        
+        compositeDisposable.add(disposable);
     }
 
     private void fetchUserInfo() {
         if (TextUtils.isEmpty(token)) {
             return;
         }
-        
-        loading.setValue(true);
-        apiService.getUserInfo(token).enqueue(new Callback<Result<UserInfoResponse>>() {
-            @Override
-            public void onResponse(Call<Result<UserInfoResponse>> call, Response<Result<UserInfoResponse>> response) {
-                loading.setValue(false);
-                
-                if (response.isSuccessful() && response.body() != null) {
-                    Result<UserInfoResponse> result = response.body();
-                    
-                    if (result.isSuccess() && result.getData() != null 
-                            && result.getData() != null
-                            && result.getData().getLoginUser() != null) {
-                        
-                        User user = result.getData().getLoginUser();
-                        currentUser.setValue(user);
-                    } else {
-                        errorMessage.setValue("获取用户信息失败：" + result.getMessage());
-                    }
-                } else {
-                    errorMessage.setValue("获取用户信息失败：服务器错误");
-                }
-            }
 
-            @Override
-            public void onFailure(Call<Result<UserInfoResponse>> call, Throwable t) {
-                loading.setValue(false);
-                errorMessage.setValue("获取用户信息失败：" + t.getMessage());
-                Log.e(TAG, "Fetch user info error", t);
-            }
-        });
+        loading.setValue(true);
+        
+        Disposable disposable = fetchUserInfoRx()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        user -> {
+                            loading.setValue(false);
+                            currentUser.setValue(user);
+                        },
+                        throwable -> {
+                            loading.setValue(false);
+                            errorMessage.setValue("获取用户信息失败：" + throwable.getMessage());
+                            Log.e(TAG, "Fetch user info error", throwable);
+                        }
+                );
+        
+        compositeDisposable.add(disposable);
     }
 
     public void logout() {
         if (TextUtils.isEmpty(token)) {
             return;
         }
-        
-        loading.setValue(true);
-        apiService.logout(token).enqueue(new Callback<Result<Void>>() {
-            @Override
-            public void onResponse(Call<Result<Void>> call, Response<Result<Void>> response) {
-                loading.setValue(false);
-                
-                // 无论服务器返回成功与否，都清除本地登录状态
-                clearToken();
-                currentUser.setValue(null);
-            }
 
-            @Override
-            public void onFailure(Call<Result<Void>> call, Throwable t) {
-                loading.setValue(false);
-                Log.e(TAG, "Logout error", t);
-                
-                // 即使请求失败，也清除本地登录状态
-                clearToken();
-                currentUser.setValue(null);
-            }
-        });
+        loading.setValue(true);
+        
+        Disposable disposable = apiService.logout(token)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        result -> {
+                            loading.setValue(false);
+                            clearToken();
+                            currentUser.setValue(null);
+                        },
+                        throwable -> {
+                            loading.setValue(false);
+                            Log.e(TAG, "Logout error", throwable);
+                            // 即使请求失败，也清除本地登录状态
+                            clearToken();
+                            currentUser.setValue(null);
+                        }
+                );
+        
+        compositeDisposable.add(disposable);
     }
 
     public void changePassword(Long userId, String newPassword) {
         if (TextUtils.isEmpty(token) || userId == null) {
             return;
         }
-        
-//        loading.setValue(true);
-//        apiService.changePassword(userId, newPassword, token).enqueue(new Callback<Result<Void>>() {
-//            @Override
-//            public void onResponse(Call<Result<Void>> call, Response<Result<Void>> response) {
-//                loading.setValue(false);
-//
-//                if (response.isSuccessful() && response.body() != null) {
-//                    Result<Void> result = response.body();
-//
-//                    if (result.isSuccess()) {
-//                        // 密码修改成功，更新保存的密码（如果启用了记住密码）
-//                        boolean rememberMe = sharedPreferences.getBoolean(KEY_REMEMBER, false);
-//                        if (rememberMe) {
-//                            String username = sharedPreferences.getString(KEY_USERNAME, "");
-//                            saveCredentials(username, newPassword, true);
-//                        }
-//                    } else {
-//                        errorMessage.setValue("修改密码失败：" + result.getMessage());
-//                    }
-//                } else {
-//                    errorMessage.setValue("修改密码失败：服务器错误");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Result<Void>> call, Throwable t) {
-//                loading.setValue(false);
-//                errorMessage.setValue("修改密码失败：" + t.getMessage());
-//                Log.e(TAG, "Change password error", t);
-//            }
-//        });
+
+        // 需要根据API调整实现
     }
 
     private void saveToken(String token) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_TOKEN, token);
         editor.apply();
+        //全局存储
+        UserManager.getInstance().setToken(token);
     }
 
     private void clearToken() {
@@ -312,4 +342,13 @@ public class UserRepository {
         editor.putBoolean(KEY_REMEMBER, false);
         editor.apply();
     }
-} 
+    
+    /**
+     * 清理资源，防止内存泄漏
+     */
+    public void dispose() {
+        if (!compositeDisposable.isDisposed()) {
+            compositeDisposable.dispose();
+        }
+    }
+}

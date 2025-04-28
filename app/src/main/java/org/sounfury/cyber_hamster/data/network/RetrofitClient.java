@@ -1,23 +1,32 @@
 package org.sounfury.cyber_hamster.data.network;
 
+import android.util.Log;
+
 import org.sounfury.cyber_hamster.data.network.api.ApiService;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static final String BASE_URL = "http://192.168.170.57:8081/";
+    private static String BASE_URL = "http://192.168.170.57:8082/";
     private static final int CONNECT_TIMEOUT = 15;
     private static final int READ_TIMEOUT = 15;
     private static final int WRITE_TIMEOUT = 15;
     
     private static RetrofitClient instance;
     private final Retrofit retrofit;
+
     
+
     private RetrofitClient() {
         // 创建OkHttpClient
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
@@ -36,6 +45,7 @@ public class RetrofitClient {
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .client(httpClientBuilder.build())
                 .build();
     }

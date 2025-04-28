@@ -19,7 +19,6 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import org.sounfury.cyber_hamster.R;
 import org.sounfury.cyber_hamster.base.BaseFragment;
-import org.sounfury.cyber_hamster.data.repository.UserRepository;
 import org.sounfury.cyber_hamster.ui.activity.MainActivity;
 import org.sounfury.cyber_hamster.ui.viewmodel.UserViewModel;
 
@@ -59,7 +58,6 @@ public class LoginFragment extends BaseFragment {
             if (user != null) {
                 // 弹出登录成功提示
                 Toast.makeText(requireContext(), "登录成功", Toast.LENGTH_SHORT).show();
-
                 Intent intent = new Intent(requireContext(), MainActivity.class);
                 startActivity(intent);
 
