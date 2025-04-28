@@ -3,44 +3,60 @@ description:
 globs: 
 alwaysApply: true
 ---
-赛博仓鼠，个人书库管理app，功能为做一个私人图书馆，聚焦于简单的图书管理和阅读笔记，点滴的记录
-项目结构
+├── base                      // 基类层（BaseActivity、BaseFragment等）
 │
-├── base            // 基类（BaseActivity、BaseFragment等）
-│
-├── ui              // 界面相关（Activity、Fragment、Adapter）
+├── ui                        // 界面相关（Activity、Fragment、Adapter）
 │   ├── activity
-│   │    ├── MainActivity.java
-│   │    ├── LoginActivity.java
-│   │    └── RegisterActivity.java
+│   │    ├── MainActivity.java          // 主界面
+│   │    ├── LoginActivity.java         // 登录界面
+│   │    └── RegisterActivity.java     // 注册界面
 │   │
 │   ├── fragment
-│   │    ├── home          // 图书管理相关
+│   │    ├── home                    // 图书管理相关
 │   │    │    ├── HomeFragment.java
 │   │    │    ├── AddBookFragment.java
 │   │    │    └── BookDetailFragment.java
 │   │    │
-│   │    ├── category      // 分类相关
+│   │    ├── category                // 分类相关
 │   │    │    ├── CategoryFragment.java
 │   │    │    └── CategoryBookListFragment.java
 │   │    │
-│   │    ├── note          // 笔记相关
+│   │    ├── note                    // 笔记相关
 │   │    │    ├── NoteFragment.java
 │   │    │    ├── AddNoteFragment.java
 │   │    │    └── NoteDetailFragment.java
 │   │    │
-│   │    ├── profile       // 个人中心
+│   │    ├── profile                 // 个人中心
 │   │         ├── ProfileFragment.java
 │   │         └── SettingsFragment.java
 │   │
-│   └── adapter           // 列表适配器（RecyclerView.Adapter）
+│   ├── adapter                    // 列表适配器（RecyclerView.Adapter）
+│   │    └── BookAdapter.java       // 示例适配器
+│   │
+│   └── viewmodel                  // ViewModel 层
+│        ├── MainViewModel.java     // 主界面的 ViewModel
+│        ├── BookViewModel.java     // 图书管理界面的 ViewModel
+│        ├── CategoryViewModel.java // 分类管理界面的 ViewModel
+│        └── NoteViewModel.java     // 笔记管理界面的 ViewModel
 │
-├── data             // 数据层
-│   ├── model         // 数据模型（如Book.java, Note.java）
-│   ├── repository    // 仓库层（封装数据操作，调用API或者数据库）
-│   └── network       // 网络请求（Retrofit接口Service定义）
+├── data                        // 数据层
+│   ├── model                    // 数据模型（如Book.java, Note.java）
+│   │    ├── Book.java
+│   │    └── Note.java
+│   │
+│   ├── repository               // 仓库层（封装数据操作，调用API或者数据库）
+│   │    ├── BookRepository.java
+│   │    ├── NoteRepository.java
+│   │    └── CategoryRepository.java
+│   │
+│   └── network                  // 网络请求（Retrofit接口Service定义）
+│        ├── BookService.java     // 图书相关的网络请求
+│        └── NoteService.java     // 笔记相关的网络请求
 │
-├── utils            // 工具类（如图片处理，OCR工具类，时间格式化）
+├── utils                        // 工具类（如图片处理，OCR工具类，时间格式化）
+│   ├── ImageUtils.java
+│   └── DateUtils.java
 │
-└── config           // 配置类（如常量、URL、全局状态管理）
-
+├── config                       // 配置类（如常量、URL、全局状态管理）
+│   ├── Constants.java            // 常量类
+│   └── NetworkConfig.java        // 网络配置类（如BaseURL等

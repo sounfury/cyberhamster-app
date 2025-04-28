@@ -6,6 +6,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -18,12 +19,14 @@ import org.sounfury.cyber_hamster.ui.fragment.category.CategoryFragment;
 import org.sounfury.cyber_hamster.ui.fragment.home.HomeFragment;
 import org.sounfury.cyber_hamster.ui.fragment.note.NoteFragment;
 import org.sounfury.cyber_hamster.ui.fragment.profile.ProfileFragment;
+import org.sounfury.cyber_hamster.ui.viewmodel.MainViewModel;
 
 public class MainActivity extends BaseActivity {
     
     private ViewPager2 viewPager;
     private BottomNavigationView bottomNav;
     private FloatingActionButton fabAdd;
+    private MainViewModel viewModel;
     
     private final int TOTAL_PAGES = 4;
     private final int HOME_PAGE = 0;
@@ -36,8 +39,19 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        // 初始化ViewModel
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        
         initView();
         initData();
+        
+        // 观察当前页面变化
+        viewModel.getCurrentPage().observe(this, page -> {
+            if (page != null) {
+                viewPager.setCurrentItem(page);
+                updateBottomNavigation(page);
+            }
+        });
     }
     
     @Override
@@ -74,24 +88,24 @@ public class MainActivity extends BaseActivity {
         // 禁用ViewPager滑动
         viewPager.setUserInputEnabled(false);
         
-        // 设置底部导航点击事件
+        // 切换页面
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                viewPager.setCurrentItem(HOME_PAGE);
+                viewModel.setCurrentPage(HOME_PAGE);
                 return true;
             } else if (itemId == R.id.nav_category) {
-                viewPager.setCurrentItem(CATEGORY_PAGE);
+                viewModel.setCurrentPage(CATEGORY_PAGE);
                 return true;
             } else if (itemId == R.id.nav_add) {
                 // 不做任何切换，只触发FAB点击
                 fabAdd.performClick();
                 return false;
             } else if (itemId == R.id.nav_note) {
-                viewPager.setCurrentItem(NOTE_PAGE);
+                viewModel.setCurrentPage(NOTE_PAGE);
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                viewPager.setCurrentItem(PROFILE_PAGE);
+                viewModel.setCurrentPage(PROFILE_PAGE);
                 return true;
             }
             return false;
@@ -107,5 +121,29 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void initData() {
         // 初始化数据
+    }
+    
+    // 更新底部导航栏选中状态
+    private void updateBottomNavigation(int position) {
+        int id;
+        switch (position) {
+            case HOME_PAGE:
+                id = R.id.nav_home;
+                break;
+            case CATEGORY_PAGE:
+                id = R.id.nav_category;
+                break;
+            case NOTE_PAGE:
+                id = R.id.nav_note;
+                break;
+            case PROFILE_PAGE:
+                id = R.id.nav_profile;
+                break;
+            default:
+                id = R.id.nav_home;
+        }
+        if (bottomNav.getSelectedItemId() != id) {
+            bottomNav.setSelectedItemId(id);
+        }
     }
 } 

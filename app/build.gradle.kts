@@ -36,6 +36,11 @@ dependencies {
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.core:core-ktx:1.12.0")
     
+    // ViewModel和LiveData (MVVM架构组件)
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-livedata:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
+    
     // ViewPager2
     implementation("androidx.viewpager2:viewpager2:1.0.0")
     

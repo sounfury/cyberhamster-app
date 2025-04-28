@@ -5,9 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,9 +19,9 @@ import org.sounfury.cyber_hamster.R;
 import org.sounfury.cyber_hamster.base.BaseFragment;
 import org.sounfury.cyber_hamster.data.model.Book;
 import org.sounfury.cyber_hamster.ui.adapter.BookAdapter;
+import org.sounfury.cyber_hamster.ui.viewmodel.HomeViewModel;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class HomeFragment extends BaseFragment implements View.OnClickListener {
@@ -30,11 +32,36 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
     
     private BookAdapter bookAdapter;
     private List<Book> bookList = new ArrayList<>();
+    private HomeViewModel viewModel;
     
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
+    }
+    
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // 初始化ViewModel
+        viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        
+        // 观察数据变化
+        viewModel.getBookList().observe(getViewLifecycleOwner(), books -> {
+            if (books != null) {
+                bookList.clear();
+                bookList.addAll(books);
+                bookAdapter.notifyDataSetChanged();
+            }
+        });
+        
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            // 可以在这里显示或隐藏加载指示器
+        });
+        
+        viewModel.getSelectedCategory().observe(getViewLifecycleOwner(), categoryId -> {
+            updateSelectedCategoryChip(categoryId);
+        });
     }
     
     @Override
@@ -64,55 +91,44 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
         // 初始化适配器
         bookAdapter = new BookAdapter(getContext(), bookList);
         rvBooks.setAdapter(bookAdapter);
+        
+        // 设置点击监听器
+        bookAdapter.setOnItemClickListener(book -> {
+            // 处理图书点击事件
+            Toast.makeText(getContext(), "点击了: " + book.getBookName(), Toast.LENGTH_SHORT).show();
+        });
     }
     
     @Override
     protected void initData() {
-        // 加载图书数据
-        loadMockData();
+        // 加载数据由ViewModel负责
     }
     
     @Override
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.chip_all) {
-            filterBooks(0);
+            viewModel.setSelectedCategory(0);
         } else if (id == R.id.chip_novel) {
-            filterBooks(1);
+            viewModel.setSelectedCategory(1);
         } else if (id == R.id.chip_tech) {
-            filterBooks(2);
+            viewModel.setSelectedCategory(2);
         } else if (id == R.id.chip_social) {
-            filterBooks(3);
+            viewModel.setSelectedCategory(3);
         } else if (id == R.id.chip_education) {
-            filterBooks(4);
+            viewModel.setSelectedCategory(4);
         } else if (id == R.id.chip_economics) {
-            filterBooks(5);
+            viewModel.setSelectedCategory(5);
         }
     }
     
-    // 根据类别过滤图书
-    private void filterBooks(int categoryId) {
-        // TODO: 实际应用中根据类别过滤图书
-        // 此处为示例代码
-    }
-    
-    // 加载模拟数据
-    private void loadMockData() {
-        bookList.clear();
-        
-        // 添加一些模拟数据
-        bookList.add(new Book(1, "Cracking the Coding Interview", "刘慧欣", "Publisher 1", "123456789", 
-                null, "Description 1", 2, new Date(), 0));
-        
-        bookList.add(new Book(2, "图灵的秘密", "安德鲁 霍金斯", "Publisher 2", "234567890", 
-                null, "Description 2", 2, new Date(), 1));
-        
-        bookList.add(new Book(3, "活着", "余华", "Publisher 3", "345678901", 
-                null, "Description 3", 1, new Date(), 2));
-                
-        bookList.add(new Book(4, "解忧杂货店", "东野圭吾", "Publisher 4", "456789012", 
-                null, "Description 4", 1, new Date(), 1));
-        
-        bookAdapter.notifyDataSetChanged();
+    // 更新分类标签选中状态
+    private void updateSelectedCategoryChip(int categoryId) {
+        chipAll.setChecked(categoryId == 0);
+        chipNovel.setChecked(categoryId == 1);
+        chipTech.setChecked(categoryId == 2);
+        chipSocial.setChecked(categoryId == 3);
+        chipEducation.setChecked(categoryId == 4);
+        chipEconomics.setChecked(categoryId == 5);
     }
 } 

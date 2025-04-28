@@ -7,6 +7,7 @@
 
     <application
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -16,9 +17,9 @@
         android:theme="@style/Theme.Cyberhamster"
         tools:targetApi="31">
         
-        <!-- 主活动 -->
+        <!-- 登录活动 -->
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name=".ui.activity.SignActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,9 +27,9 @@
             </intent-filter>
         </activity>
         
-        <!-- 登录活动 -->
+        <!-- 主活动 -->
         <activity
-            android:name=".ui.activity.LoginActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="false"/>
         
     </application>

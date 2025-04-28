@@ -40,7 +40,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         Book book = bookList.get(position);
         
         // 设置书籍信息
-        holder.tvTitle.setText(book.getTitle());
+        holder.tvTitle.setText(book.getBookName());
         holder.tvAuthor.setText(book.getAuthor());
         
         // 设置封面图片
@@ -52,17 +52,17 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         }
         
         // 设置阅读状态
-        switch (book.getReadStatus()) {
-            case Constants.READ_STATUS_UNREAD:
-                holder.tvStatus.setText("未读");
-                break;
-            case Constants.READ_STATUS_READING:
-                holder.tvStatus.setText("在读");
-                break;
-            case Constants.READ_STATUS_FINISHED:
-                holder.tvStatus.setText("已读");
-                break;
-        }
+//        switch (book.getReadStatus()) {
+//            case Constants.READ_STATUS_UNREAD:
+//                holder.tvStatus.setText("未读");
+//                break;
+//            case Constants.READ_STATUS_READING:
+//                holder.tvStatus.setText("在读");
+//                break;
+//            case Constants.READ_STATUS_FINISHED:
+//                holder.tvStatus.setText("已读");
+//                break;
+//        }
         
         // 设置点击事件
         holder.itemView.setOnClickListener(v -> {

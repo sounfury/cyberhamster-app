@@ -6,11 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import org.sounfury.cyber_hamster.R;
 import org.sounfury.cyber_hamster.base.BaseFragment;
+import org.sounfury.cyber_hamster.ui.viewmodel.ProfileViewModel;
 
 public class ProfileFragment extends BaseFragment {
     
@@ -18,11 +21,44 @@ public class ProfileFragment extends BaseFragment {
     private TextView tvUsername;
     private TextView tvBookCount;
     private TextView tvNoteCount;
+    private ProfileViewModel viewModel;
     
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_profile, container, false);
+    }
+    
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        
+        // 初始化ViewModel
+        viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+        
+        // 观察数据变化
+        viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                tvUsername.setText(user.getNickname());
+                // 如果有头像，可以加载头像
+            }
+        });
+        
+        viewModel.getBookCount().observe(getViewLifecycleOwner(), count -> {
+            if (count != null) {
+                tvBookCount.setText("书籍: " + count);
+            }
+        });
+        
+        viewModel.getNoteCount().observe(getViewLifecycleOwner(), count -> {
+            if (count != null) {
+                tvNoteCount.setText("笔记: " + count);
+            }
+        });
+        
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            // 可以在这里显示或隐藏加载指示器
+        });
     }
     
     @Override
@@ -36,9 +72,6 @@ public class ProfileFragment extends BaseFragment {
     
     @Override
     protected void initData() {
-        // 加载个人资料数据
-        tvUsername.setText("测试用户");
-        tvBookCount.setText("书籍: 12");
-        tvNoteCount.setText("笔记: 5");
+        // 加载数据由ViewModel负责
     }
 } 

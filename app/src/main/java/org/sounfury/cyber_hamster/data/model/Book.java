@@ -3,66 +3,133 @@ package org.sounfury.cyber_hamster.data.model;
 import java.util.Date;
 
 public class Book {
-    private int id;
-    private String title;
-    private String author;
-    private String publisher;
-    private String isbn;
-    private String coverUrl;
-    private String description;
-    private int categoryId;
-    private Date addDate;
-    private int readStatus; // 0-未读, 1-在读, 2-已读
-    
-    // 构造方法、getter和setter方法
-    
-    public Book() {
-    }
-    
-    public Book(int id, String title, String author, String publisher, String isbn, String coverUrl, String description, int categoryId, Date addDate, int readStatus) {
+
+    /**
+     * 图书ID
+     */
+    private long id;
+
+    public Book(long id, String clcCode, String isbn, String bookName, String author, String coverUrl, String press, String pressDate, String pressPlace, String clcName, String bookDesc, String binding, String language, String format, Integer pages, String edition, String words, Long categoryId) {
         this.id = id;
-        this.title = title;
-        this.author = author;
-        this.publisher = publisher;
+        this.clcCode = clcCode;
         this.isbn = isbn;
+        this.bookName = bookName;
+        this.author = author;
         this.coverUrl = coverUrl;
-        this.description = description;
+        this.press = press;
+        this.pressDate = pressDate;
+        this.pressPlace = pressPlace;
+        this.clcName = clcName;
+        this.bookDesc = bookDesc;
+        this.binding = binding;
+        this.language = language;
+        this.format = format;
+        this.pages = pages;
+        this.edition = edition;
+        this.words = words;
         this.categoryId = categoryId;
-        this.addDate = addDate;
-        this.readStatus = readStatus;
     }
-    
-    // Getter和Setter方法
-    public int getId() {
+
+    /**
+     * ISBN号，唯一约束
+     */
+    private String isbn;
+
+    /**
+     * 书名
+     */
+    private String bookName;
+
+    /**
+     * 作者
+     */
+    private String author;
+
+    /**
+     * 封面URL
+     */
+    private String coverUrl;
+
+    /**
+     * 出版社
+     */
+    private String press;
+
+    /**
+     * 出版日期
+     */
+    private String pressDate;
+
+    /**
+     * 出版地
+     */
+    private String pressPlace;
+
+    /**
+     * 中图法分类
+     */
+    private String clcCode;
+
+    /**
+     * 中图法分类名
+     */
+    private String clcName;
+
+    /**
+     * 简介
+     */
+    private String bookDesc;
+
+    /**
+     * 装订方式
+     */
+    private String binding;
+
+    /**
+     * 语言
+     */
+    private String language;
+
+    /**
+     * 开本
+     */
+    private String format;
+
+    /**
+     * 页数
+     */
+    private Integer pages;
+
+    /**
+     * 版次
+     */
+    private String edition;
+
+    /**
+     * 字数
+     */
+    private String words;
+
+
+    private Long categoryId;
+
+
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    // Getter 和 Setter 方法
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String getPublisher() {
-        return publisher;
-    }
-
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
     }
 
     public String getIsbn() {
@@ -73,6 +140,22 @@ public class Book {
         this.isbn = isbn;
     }
 
+    public String getBookName() {
+        return bookName;
+    }
+
+    public void setBookName(String bookName) {
+        this.bookName = bookName;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
     public String getCoverUrl() {
         return coverUrl;
     }
@@ -81,35 +164,107 @@ public class Book {
         this.coverUrl = coverUrl;
     }
 
-    public String getDescription() {
-        return description;
+    public String getPress() {
+        return press;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setPress(String press) {
+        this.press = press;
     }
 
-    public int getCategoryId() {
-        return categoryId;
+    public String getPressDate() {
+        return pressDate;
     }
 
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
+    public void setPressDate(String pressDate) {
+        this.pressDate = pressDate;
     }
 
-    public Date getAddDate() {
-        return addDate;
+    public String getPressPlace() {
+        return pressPlace;
     }
 
-    public void setAddDate(Date addDate) {
-        this.addDate = addDate;
+    public void setPressPlace(String pressPlace) {
+        this.pressPlace = pressPlace;
     }
 
-    public int getReadStatus() {
-        return readStatus;
+    public String getClcCode() {
+        return clcCode;
     }
 
-    public void setReadStatus(int readStatus) {
-        this.readStatus = readStatus;
+    public void setClcCode(String clcCode) {
+        this.clcCode = clcCode;
     }
-} 
+
+    public String getClcName() {
+        return clcName;
+    }
+
+    public void setClcName(String clcName) {
+        this.clcName = clcName;
+    }
+
+    public String getBookDesc() {
+        return bookDesc;
+    }
+
+    public void setBookDesc(String bookDesc) {
+        this.bookDesc = bookDesc;
+    }
+
+    public String getBinding() {
+        return binding;
+    }
+
+    public void setBinding(String binding) {
+        this.binding = binding;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public Integer getPages() {
+        return pages;
+    }
+
+    public void setPages(Integer pages) {
+        this.pages = pages;
+    }
+
+    public String getEdition() {
+        return edition;
+    }
+
+    public void setEdition(String edition) {
+        this.edition = edition;
+    }
+
+    public String getWords() {
+        return words;
+    }
+
+    public void setWords(String words) {
+        this.words = words;
+    }
+
+
+
+
+
+
+
+
+}
