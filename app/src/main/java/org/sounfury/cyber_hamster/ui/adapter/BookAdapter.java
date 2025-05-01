@@ -1,6 +1,8 @@
 package org.sounfury.cyber_hamster.ui.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,26 +45,40 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         holder.tvTitle.setText(book.getBookName());
         holder.tvAuthor.setText(book.getAuthor());
         
+        // 设置出版社
+        if (!TextUtils.isEmpty(book.getPress())) {
+            holder.tvPress.setVisibility(View.VISIBLE);
+            holder.tvPress.setText(context.getString(R.string.press_info, book.getPress()));
+        } else {
+            holder.tvPress.setVisibility(View.GONE);
+        }
+        
+        // 设置出版时间
+        if (!TextUtils.isEmpty(book.getPressDate())) {
+            holder.tvPublishDate.setVisibility(View.VISIBLE);
+            holder.tvPublishDate.setText(context.getString(R.string.publish_date_info, book.getPressDate()));
+        } else {
+            holder.tvPublishDate.setVisibility(View.GONE);
+        }
+        
+        // 设置中图法分类
+        if (!TextUtils.isEmpty(book.getClcName())) {
+            holder.tvClcName.setVisibility(View.VISIBLE);
+            holder.tvClcName.setText(context.getString(R.string.clc_name_info, book.getClcName()));
+        } else {
+            holder.tvClcName.setVisibility(View.GONE);
+        }
+        
         // 设置封面图片
         if (book.getCoverUrl() != null && !book.getCoverUrl().isEmpty()) {
-            ImageUtils.loadImage(context, book.getCoverUrl(), holder.ivCover);
+            Log.i("CoverUrl", book.getCoverUrlArray()[0]);
+            ImageUtils.loadImage(context,  book.getCoverUrlArray()[0], holder.ivCover);
         } else {
             // 设置默认封面
             holder.ivCover.setImageResource(R.drawable.ic_book_placeholder);
         }
         
-        // 设置阅读状态
-//        switch (book.getReadStatus()) {
-//            case Constants.READ_STATUS_UNREAD:
-//                holder.tvStatus.setText("未读");
-//                break;
-//            case Constants.READ_STATUS_READING:
-//                holder.tvStatus.setText("在读");
-//                break;
-//            case Constants.READ_STATUS_FINISHED:
-//                holder.tvStatus.setText("已读");
-//                break;
-//        }
+
         
         // 设置点击事件
         holder.itemView.setOnClickListener(v -> {
@@ -92,14 +108,18 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         ImageView ivCover;
         TextView tvTitle;
         TextView tvAuthor;
-        TextView tvStatus;
+        TextView tvPress;
+        TextView tvPublishDate;
+        TextView tvClcName;
         
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
             ivCover = itemView.findViewById(R.id.iv_book_cover);
             tvTitle = itemView.findViewById(R.id.tv_book_title);
             tvAuthor = itemView.findViewById(R.id.tv_book_author);
-            tvStatus = itemView.findViewById(R.id.tv_reading_status);
+            tvPress = itemView.findViewById(R.id.tv_book_press);
+            tvPublishDate = itemView.findViewById(R.id.tv_book_publish_date);
+            tvClcName = itemView.findViewById(R.id.tv_book_clc_name);
         }
     }
 } 

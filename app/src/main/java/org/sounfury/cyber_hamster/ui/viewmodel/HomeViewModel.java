@@ -1,26 +1,44 @@
 package org.sounfury.cyber_hamster.ui.viewmodel;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import org.sounfury.cyber_hamster.data.model.Book;
+import org.sounfury.cyber_hamster.data.model.Category;
 import org.sounfury.cyber_hamster.data.repository.BookRepository;
+import org.sounfury.cyber_hamster.data.repository.CategoryRepository;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeViewModel extends ViewModel {
     
     private final BookRepository bookRepository;
+    private final CategoryRepository categoryRepository;
     private final MutableLiveData<List<Book>> bookList = new MutableLiveData<>();
+    private final MutableLiveData<List<Category>> categories = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private final MutableLiveData<Integer> selectedCategory = new MutableLiveData<>();
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    
+    private final CompositeDisposable disposables = new CompositeDisposable();
+    
+    private int currentPage = 0;
+    private boolean hasMoreData = true;
+    private List<Book> currentBooks = new ArrayList<>();
     
     public HomeViewModel() {
-        // 在实际项目中，这应该通过依赖注入提供
-        this.bookRepository = new BookRepository();
+        this.bookRepository = BookRepository.getInstance();
+        this.categoryRepository = CategoryRepository.getInstance();
+        loadCategories();
         loadBooks();
         selectedCategory.setValue(0); // 默认选中全部分类
     }
@@ -29,8 +47,16 @@ public class HomeViewModel extends ViewModel {
         return bookList;
     }
     
+    public LiveData<List<Category>> getCategories() {
+        return categories;
+    }
+    
     public LiveData<Boolean> getIsLoading() {
         return isLoading;
+    }
+    
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
     }
     
     public LiveData<Integer> getSelectedCategory() {
@@ -39,20 +65,88 @@ public class HomeViewModel extends ViewModel {
     
     public void setSelectedCategory(int categoryId) {
         selectedCategory.setValue(categoryId);
+        // 切换分类时重置分页
+        resetPagination();
         filterBooksByCategory(categoryId);
     }
-    
-    public void loadBooks() {
-        isLoading.setValue(true);
-        
-        // 在实际应用中，这里应该调用Repository中的异步方法获取数据
-        // 此处为简化，直接使用模拟数据
-        List<Book> books = loadMockData();
-        bookList.setValue(books);
-        
-        isLoading.setValue(false);
+
+    private void resetPagination() {
+        currentPage = 0;
+        hasMoreData = true;
+        currentBooks.clear();
     }
     
+    public void loadCategories() {
+        isLoading.setValue(true);
+        
+        Disposable disposable = categoryRepository.getAllCategories()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(categoryList -> {
+                    categories.setValue(categoryList);
+                    isLoading.setValue(false);
+                }, throwable -> {
+                    Log.e("HomeViewModel", "Error loading categories", throwable);
+                    errorMessage.setValue("获取分类失败：" + throwable.getMessage());
+                    isLoading.setValue(false);
+                });
+        
+        disposables.add(disposable);
+    }
+
+    public void loadBooks() {
+        if (!hasMoreData) {
+            return;
+        }
+        
+        isLoading.setValue(true);
+
+        Disposable disposable = bookRepository.getAllBooks(currentPage)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(books -> {
+                    // 判断是否还有更多数据
+                    if (books.isEmpty()) {
+                        hasMoreData = false;
+                    } else {
+                        // 添加新数据到列表
+                        if (currentPage == 0) {
+                            currentBooks.clear();
+                        }
+                        currentBooks.addAll(books);
+                        bookList.setValue(currentBooks);
+                    }
+                    isLoading.setValue(false);
+                }, throwable -> {
+                    Log.e("HomeViewModel", "Error loading books", throwable);
+                    errorMessage.setValue("获取图书失败：" + throwable.getMessage());
+                    isLoading.setValue(false);
+                });
+
+        disposables.add(disposable);
+    }
+
+    public void loadNextPage() {
+        if (!isLoading.getValue() && hasMoreData) {
+            currentPage++;
+            
+            // 如果当前选中的是全部分类，加载所有图书；否则按分类加载
+            Integer categoryId = selectedCategory.getValue();
+            if (categoryId != null && categoryId > 0) {
+                loadBooksByCategory(categoryId);
+            } else {
+                loadBooks();
+            }
+        }
+    }
+
+    // ViewModel销毁时取消订阅，防止内存泄漏
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        disposables.clear();
+    }
+
     private void filterBooksByCategory(int categoryId) {
         isLoading.setValue(true);
         
@@ -60,93 +154,59 @@ public class HomeViewModel extends ViewModel {
             // 如果是"全部"分类，加载所有图书
             loadBooks();
         } else {
-            // 否则，根据分类ID筛选
-            List<Book> allBooks = loadMockData();
-            List<Book> filteredBooks = new ArrayList<>();
-            
-            for (Book book : allBooks) {
-                if (book.getCategoryId() == categoryId) {
-                    filteredBooks.add(book);
-                }
-            }
-            
-            bookList.setValue(filteredBooks);
+            // 按照选中的分类加载图书
+            loadBooksByCategory(categoryId);
         }
-        
-        isLoading.setValue(false);
     }
     
-    // 加载模拟数据
-    private List<Book> loadMockData() {
-//        // 添加一些模拟数据
-        // 创建一个 List<Book> 用于存放书籍对象
-        List<Book> books = new ArrayList<>();
+    private void loadBooksByCategory(int categoryId) {
+        isLoading.setValue(true);
+        
+        Disposable disposable = categoryRepository.getBooksByCategoryId(categoryId, currentPage, 10)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(pageResult -> {
+                    List<Book> books = pageResult.getRows();
+                    
+                    // 判断是否还有更多数据
+                    if (books == null || books.isEmpty() || books.size() < 10) {
+                        hasMoreData = false;
+                    }
+                    
+                    // 更新UI
+                    if (currentPage == 0) {
+                        currentBooks.clear();
+                    }
+                    
+                    if (books != null && !books.isEmpty()) {
+                        currentBooks.addAll(books);
+                    }
+                    
+                    bookList.setValue(currentBooks);
+                    isLoading.setValue(false);
+                }, throwable -> {
+                    Log.e("HomeViewModel", "Error loading books by category", throwable);
+                    errorMessage.setValue("获取分类图书失败：" + throwable.getMessage());
+                    isLoading.setValue(false);
+                });
+        
+        disposables.add(disposable);
+    }
 
-// 往 books 中添加一些模拟数据
-        books.add(new Book(
-                1L,
-                "TP312",
-                "978-7-111-61586-3",
-                "深入理解Java虚拟机",
-                "周志明",
-                "https://example.com/jvm.jpg",
-                "机械工业出版社",
-                "2019-03",
-                "北京",
-                "计算机科学",
-                "讲解了Java虚拟机的原理、运行机制及优化方法",
-                "平装",
-                "中文",
-                "16开",
-                400,
-                "第3版",
-                "500千字",
-                1001L
-        ));
-
-        books.add(new Book(
-                2L,
-                "TP312",
-                "978-7-302-58047-2",
-                "计算机网络：自顶向下方法",
-                "James F. Kurose",
-                "https://example.com/network.jpg",
-                "清华大学出版社",
-                "2021-07",
-                "北京",
-                "计算机科学",
-                "以应用层到物理层的顺序讲述计算机网络",
-                "精装",
-                "中文",
-                "16开",
-                600,
-                "第7版",
-                "700千字",
-                1002L
-        ));
-
-        books.add(new Book(
-                3L,
-                "TP311",
-                "978-7-115-50938-1",
-                "算法（第4版）",
-                "Robert Sedgewick",
-                "https://example.com/algorithm.jpg",
-                "人民邮电出版社",
-                "2018-01",
-                "北京",
-                "计算机科学",
-                "经典算法教材，涵盖排序、查找、图、字符串处理等",
-                "平装",
-                "中文",
-                "16开",
-                920,
-                "第4版",
-                "1000千字",
-                1003L
-        ));
-
-
-        return books;
+    /**
+     * 刷新数据
+     * 重置分页并重新加载数据
+     */
+    public void refreshData() {
+        // 重置分页状态
+        resetPagination();
+        
+        // 根据当前选中的分类重新加载数据
+        Integer categoryId = selectedCategory.getValue();
+        if (categoryId != null && categoryId > 0) {
+            loadBooksByCategory(categoryId);
+        } else {
+            loadBooks();
+        }
     }
 } 

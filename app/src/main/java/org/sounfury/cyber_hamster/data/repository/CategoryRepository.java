@@ -1,58 +1,126 @@
 package org.sounfury.cyber_hamster.data.repository;
 
+import org.sounfury.cyber_hamster.data.model.Book;
 import org.sounfury.cyber_hamster.data.model.Category;
+import org.sounfury.cyber_hamster.data.network.RetrofitClient;
+import org.sounfury.cyber_hamster.data.network.api.CategoryService;
+import org.sounfury.cyber_hamster.data.network.page.PageQuery;
+import org.sounfury.cyber_hamster.data.network.page.PageResult;
+import org.sounfury.cyber_hamster.data.network.request.AddBookToCategoryRequest;
+import org.sounfury.cyber_hamster.data.network.request.AddBooksToCategoryRequest;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class CategoryRepository {
     
-    // 获取所有分类
-    public List<Category> getAllCategories() {
-        // 实际项目中，这里应该从网络或数据库获取数据
-        // 此处使用模拟数据
-        return getMockCategories();
+    private static CategoryRepository instance = new CategoryRepository();
+    private final CategoryService categoryService;
+    
+    private CategoryRepository() {
+        this.categoryService = RetrofitClient.getInstance().getCategoryService();
     }
     
-    // 根据ID获取分类
-    public Category getCategoryById(int id) {
-        List<Category> categories = getMockCategories();
-        for (Category category : categories) {
-            if (category.getId() == id) {
-                return category;
-            }
-        }
-        return null;
+    public static CategoryRepository getInstance() {
+        return instance;
     }
     
-    // 添加分类
-    public boolean addCategory(Category category) {
-        // 实现添加分类的逻辑
-        return true;
+    // 从API获取所有分类
+    public Observable<List<Category>> getAllCategories() {
+        return categoryService.getBookCategories()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(result -> {
+                    if (result != null && result.isSuccess() && result.getData() != null) {
+                        return result.getData();
+                    } else {
+                        return new ArrayList<>();
+                    }
+                });
+    }
+    
+    // 根据分类ID分页获取图书
+    public Observable<PageResult<Book>> getBooksByCategoryId(long categoryId, int pageNum, int pageSize) {
+        PageQuery<Book> pageQuery = new PageQuery<>(pageNum, pageSize);
+        return categoryService.getBooksByCategoryId(categoryId, pageQuery)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(result -> {
+                    if (result != null && result.isSuccess() && result.getData() != null) {
+                        return result.getData();
+                    } else {
+                        return new PageResult<>();
+                    }
+                });
+    }
+
+    // 创建新分类
+    public Observable<Category> createCategory(String name) {
+        return categoryService.createCategory(name)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(result -> {
+                    if (result != null && result.isSuccess() && result.getData() != null) {
+                        return result.getData();
+                    } else {
+                        return null;
+                    }
+                });
     }
     
     // 更新分类
-    public boolean updateCategory(Category category) {
-        // 实现更新分类的逻辑
-        return true;
+    public Observable<Category> updateCategory(Category category) {
+        return categoryService.updateCategory(category)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(result -> {
+                    if (result != null && result.isSuccess() && result.getData() != null) {
+                        return result.getData();
+                    } else {
+                        return null;
+                    }
+                });
     }
     
     // 删除分类
-    public boolean deleteCategory(int id) {
-        // 实现删除分类的逻辑
-        return true;
+    public Observable<Boolean> deleteCategory(long categoryId) {
+        return categoryService.deleteCategory(categoryId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(result -> result != null && result.isSuccess());
     }
     
-    // 获取模拟数据
-    private List<Category> getMockCategories() {
-        List<Category> categories = new ArrayList<>();
+//    // 将图书添加到分类
+//    public Observable<Boolean> addBooksToCategory(long categoryId, List<Long> bookIds) {
+//        return categoryService.addBooksToCategory(categoryId, bookIds)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .map(result -> result != null && result.isSuccess());
+//    }
+    
+    // 批量将图书添加到多个分类（或从所有分类中移除）
+    public Observable<Boolean> addBooksToCategories(List<Long> categoryIds, List<Long> bookIds) {
+        AddBooksToCategoryRequest request = new AddBooksToCategoryRequest();
+        request.setCategoryIds(categoryIds);
+        request.setBookIds(bookIds);
         
-        categories.add(new Category(1, "小说", "文学小说类"));
-        categories.add(new Category(2, "科技", "科学技术类"));
-        categories.add(new Category(3, "社科", "社会科学类"));
-        categories.add(new Category(4, "教育", "教育相关类"));
-        categories.add(new Category(5, "经济", "经济管理类"));
+        return categoryService.addBooksToCategory(request)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(result -> result != null && result.isSuccess());
+    }
+    
+    // 将单本图书添加到多个分类（或从所有分类中移除）
+    public Observable<Boolean> addSingleBookToCategories(long bookId, List<Long> categoryIds) {
+        AddBookToCategoryRequest request = new AddBookToCategoryRequest(categoryIds, bookId);
         
-        return categories;
+        return categoryService.addBookToCategory(request)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(result -> result != null && result.isSuccess());
     }
 } 

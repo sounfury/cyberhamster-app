@@ -1,13 +1,12 @@
 package org.sounfury.cyber_hamster.data.network;
 
-import android.util.Log;
+import org.sounfury.cyber_hamster.data.model.Book;
+import org.sounfury.cyber_hamster.data.network.Interceptor.TokenInterceptor;
+import org.sounfury.cyber_hamster.data.network.api.BookService;
+import org.sounfury.cyber_hamster.data.network.api.CategoryService;
+import org.sounfury.cyber_hamster.data.network.api.NoteService;
+import org.sounfury.cyber_hamster.data.network.api.UserService;
 
-import org.sounfury.cyber_hamster.data.network.api.ApiService;
-
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -35,6 +34,9 @@ public class RetrofitClient {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         httpClientBuilder.addInterceptor(loggingInterceptor);
+        // 添加Token拦截器
+        TokenInterceptor tokenInterceptor = new TokenInterceptor();
+        httpClientBuilder.addInterceptor(tokenInterceptor);
         
         // 设置超时时间
         httpClientBuilder.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS);
@@ -57,7 +59,19 @@ public class RetrofitClient {
         return instance;
     }
     
-    public ApiService getApiService() {
-        return retrofit.create(ApiService.class);
+    public UserService getApiService() {
+        return retrofit.create(UserService.class);
+    }
+
+    public NoteService getNoteService() {
+        return retrofit.create(NoteService.class);
+    }
+
+    public BookService getBookService() {
+        return retrofit.create(BookService.class);
+    }
+
+    public CategoryService getCategoryService() {
+        return retrofit.create(CategoryService.class);
     }
 } 

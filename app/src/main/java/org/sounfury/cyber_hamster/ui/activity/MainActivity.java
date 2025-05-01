@@ -15,7 +15,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.sounfury.cyber_hamster.R;
 import org.sounfury.cyber_hamster.base.BaseActivity;
-import org.sounfury.cyber_hamster.ui.fragment.category.CategoryFragment;
+import org.sounfury.cyber_hamster.ui.fragment.category.BookshelfManagementFragment;
 import org.sounfury.cyber_hamster.ui.fragment.home.HomeFragment;
 import org.sounfury.cyber_hamster.ui.fragment.note.NoteFragment;
 import org.sounfury.cyber_hamster.ui.fragment.profile.ProfileFragment;
@@ -24,6 +24,7 @@ import org.sounfury.cyber_hamster.ui.viewmodel.MainViewModel;
 public class MainActivity extends BaseActivity {
     
     private ViewPager2 viewPager;
+    private View fragmentContainer;
     private BottomNavigationView bottomNav;
     private FloatingActionButton fabAdd;
     private MainViewModel viewModel;
@@ -52,11 +53,17 @@ public class MainActivity extends BaseActivity {
                 updateBottomNavigation(page);
             }
         });
+        
+        // 添加返回键监听
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            updateContainerVisibility();
+        });
     }
     
     @Override
     protected void initView() {
         viewPager = findViewById(R.id.view_pager);
+        fragmentContainer = findViewById(R.id.fragment_container);
         bottomNav = findViewById(R.id.bottom_navigation);
         fabAdd = findViewById(R.id.fab_add);
         
@@ -69,7 +76,7 @@ public class MainActivity extends BaseActivity {
                     case HOME_PAGE:
                         return new HomeFragment();
                     case CATEGORY_PAGE:
-                        return new CategoryFragment();
+                        return new BookshelfManagementFragment();
                     case NOTE_PAGE:
                         return new NoteFragment();
                     case PROFILE_PAGE:
@@ -114,7 +121,9 @@ public class MainActivity extends BaseActivity {
         // 添加按钮点击事件
         fabAdd.setOnClickListener(view -> {
             // 打开添加书籍界面
-            // TODO: 实现添加书籍功能
+            showDetailFragment(
+                org.sounfury.cyber_hamster.ui.fragment.book.AddBookFragment.newInstance()
+            );
         });
     }
     
@@ -144,6 +153,61 @@ public class MainActivity extends BaseActivity {
         }
         if (bottomNav.getSelectedItemId() != id) {
             bottomNav.setSelectedItemId(id);
+        }
+    }
+    
+    /**
+     * 显示详情Fragment
+     */
+    public void showDetailFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
+        
+        updateContainerVisibility();
+    }
+    
+    /**
+     * 更新容器可见性
+     */
+    private void updateContainerVisibility() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            // 有详情页面，显示详情容器
+            viewPager.setVisibility(View.GONE);
+            fragmentContainer.setVisibility(View.VISIBLE);
+            // 底部导航栏由Fragment自己处理可见性
+        } else {
+            // 没有详情页面，显示主页面
+            viewPager.setVisibility(View.VISIBLE);
+            fragmentContainer.setVisibility(View.GONE);
+            // 恢复底部导航栏
+            bottomNav.setVisibility(View.VISIBLE);
+            fabAdd.setVisibility(View.VISIBLE);
+        }
+    }
+    
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+    
+    /**
+     * 刷新首页数据
+     * 当添加了新书后需要调用此方法刷新首页数据
+     */
+    public void refreshHomeData() {
+        // 如果当前在首页，通知首页Fragment刷新数据
+        if (viewPager.getCurrentItem() == HOME_PAGE && getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager()
+                    .findFragmentByTag("f" + HOME_PAGE);
+            if (homeFragment != null) {
+                homeFragment.refreshData();
+            }
         }
     }
 } 

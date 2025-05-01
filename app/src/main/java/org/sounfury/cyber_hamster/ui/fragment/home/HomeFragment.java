@@ -14,11 +14,16 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.sounfury.cyber_hamster.R;
 import org.sounfury.cyber_hamster.base.BaseFragment;
 import org.sounfury.cyber_hamster.data.model.Book;
+import org.sounfury.cyber_hamster.data.model.Category;
+import org.sounfury.cyber_hamster.ui.activity.MainActivity;
 import org.sounfury.cyber_hamster.ui.adapter.BookAdapter;
+import org.sounfury.cyber_hamster.ui.fragment.book.BookDetailFragment;
 import org.sounfury.cyber_hamster.ui.viewmodel.HomeViewModel;
 
 import java.util.ArrayList;
@@ -28,11 +33,13 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
     
     private RecyclerView rvBooks;
     private EditText etSearch;
-    private Chip chipAll, chipNovel, chipTech, chipSocial, chipEducation, chipEconomics;
+    private ChipGroup chipGroupCategories;
+    private Chip chipAll;
     
     private BookAdapter bookAdapter;
     private List<Book> bookList = new ArrayList<>();
     private HomeViewModel viewModel;
+    private boolean isLoading = false;
     
     @Nullable
     @Override
@@ -52,16 +59,37 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
                 bookList.clear();
                 bookList.addAll(books);
                 bookAdapter.notifyDataSetChanged();
+                isLoading = false;
             }
         });
         
         viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            // 可以在这里显示或隐藏加载指示器
+            this.isLoading = isLoading;
         });
         
         viewModel.getSelectedCategory().observe(getViewLifecycleOwner(), categoryId -> {
             updateSelectedCategoryChip(categoryId);
         });
+        
+        // 观察分类数据
+        viewModel.getCategories().observe(getViewLifecycleOwner(), categories -> {
+            if (categories != null && !categories.isEmpty()) {
+                setupCategoryChips(categories);
+            }
+        });
+        
+        // 观察错误信息
+        viewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMessage -> {
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                showError(errorMessage);
+            }
+        });
+    }
+    
+    private void showError(String errorMessage) {
+        if (getView() != null) {
+            Snackbar.make(getView(), errorMessage, Snackbar.LENGTH_LONG).show();
+        }
     }
     
     @Override
@@ -69,24 +97,17 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
         // 初始化视图
         etSearch = view.findViewById(R.id.et_search);
         
-        chipAll = view.findViewById(R.id.chip_all);
-        chipNovel = view.findViewById(R.id.chip_novel);
-        chipTech = view.findViewById(R.id.chip_tech);
-        chipSocial = view.findViewById(R.id.chip_social);
-        chipEducation = view.findViewById(R.id.chip_education);
-        chipEconomics = view.findViewById(R.id.chip_economics);
+        // 获取ChipGroup
+        chipGroupCategories = view.findViewById(R.id.chip_group_categories);
         
-        // 设置点击事件
+        // 创建"全部"分类Chip
+        chipAll = view.findViewById(R.id.chip_all);
         chipAll.setOnClickListener(this);
-        chipNovel.setOnClickListener(this);
-        chipTech.setOnClickListener(this);
-        chipSocial.setOnClickListener(this);
-        chipEducation.setOnClickListener(this);
-        chipEconomics.setOnClickListener(this);
         
         // 设置RecyclerView
         rvBooks = view.findViewById(R.id.rv_books);
-        rvBooks.setLayoutManager(new GridLayoutManager(getContext(), 1));
+        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 1);
+        rvBooks.setLayoutManager(layoutManager);
         
         // 初始化适配器
         bookAdapter = new BookAdapter(getContext(), bookList);
@@ -94,9 +115,68 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
         
         // 设置点击监听器
         bookAdapter.setOnItemClickListener(book -> {
-            // 处理图书点击事件
-            Toast.makeText(getContext(), "点击了: " + book.getBookName(), Toast.LENGTH_SHORT).show();
+            // 跳转到图书详情页面
+            navigateToBookDetail(book.getId());
         });
+        
+        // 添加滚动监听器实现分页加载
+        rvBooks.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                
+                // 向下滚动且未处于加载状态
+                if (dy > 0 && !isLoading) {
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+                    
+                    // 当可见的最后一项接近总数时，加载更多数据
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
+                            && firstVisibleItemPosition >= 0) {
+                        loadMoreBooks();
+                    }
+                }
+            }
+        });
+    }
+    
+    private void setupCategoryChips(List<Category> categories) {
+        // 清除除了"全部"分类以外的所有Chip
+        for (int i = 0; i < chipGroupCategories.getChildCount(); i++) {
+            View child = chipGroupCategories.getChildAt(i);
+            if (child instanceof Chip && child.getId() != R.id.chip_all) {
+                chipGroupCategories.removeView(child);
+                i--; // 由于删除了一项，需要减少索引
+            }
+        }
+        
+        // 为每个分类创建一个Chip
+        for (Category category : categories) {
+            Chip chip = new Chip(requireContext());
+            chip.setText(category.getName());
+            chip.setCheckable(true);
+            chip.setCheckedIconVisible(true);
+            
+            // 设置tag存储分类ID
+            chip.setTag(category.getId());
+            
+            // 设置点击监听器
+            chip.setOnClickListener(v -> {
+                int categoryId = (int) v.getTag();
+                viewModel.setSelectedCategory(categoryId);
+            });
+            
+            // 添加到ChipGroup
+            chipGroupCategories.addView(chip);
+        }
+    }
+    
+    private void loadMoreBooks() {
+        if (!isLoading) {
+            isLoading = true;
+            viewModel.loadNextPage();
+        }
     }
     
     @Override
@@ -109,26 +189,46 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
         int id = v.getId();
         if (id == R.id.chip_all) {
             viewModel.setSelectedCategory(0);
-        } else if (id == R.id.chip_novel) {
-            viewModel.setSelectedCategory(1);
-        } else if (id == R.id.chip_tech) {
-            viewModel.setSelectedCategory(2);
-        } else if (id == R.id.chip_social) {
-            viewModel.setSelectedCategory(3);
-        } else if (id == R.id.chip_education) {
-            viewModel.setSelectedCategory(4);
-        } else if (id == R.id.chip_economics) {
-            viewModel.setSelectedCategory(5);
         }
     }
     
     // 更新分类标签选中状态
     private void updateSelectedCategoryChip(int categoryId) {
+        // 设置"全部"分类的选中状态
         chipAll.setChecked(categoryId == 0);
-        chipNovel.setChecked(categoryId == 1);
-        chipTech.setChecked(categoryId == 2);
-        chipSocial.setChecked(categoryId == 3);
-        chipEducation.setChecked(categoryId == 4);
-        chipEconomics.setChecked(categoryId == 5);
+        
+        // 设置其他分类的选中状态
+        for (int i = 0; i < chipGroupCategories.getChildCount(); i++) {
+            View child = chipGroupCategories.getChildAt(i);
+            if (child instanceof Chip && child.getId() != R.id.chip_all) {
+                Chip chip = (Chip) child;
+                int chipCategoryId = (int) chip.getTag();
+                chip.setChecked(chipCategoryId == categoryId);
+            }
+        }
+    }
+    
+    /**
+     * 跳转到图书详情页面
+     * 
+     * @param bookId 图书ID
+     */
+    private void navigateToBookDetail(long bookId) {
+        if (getActivity() instanceof MainActivity) {
+           MainActivity activity = (MainActivity) getActivity();
+           activity.showDetailFragment(BookDetailFragment.newInstance(bookId));
+        }
+    }
+    
+    /**
+     * 刷新数据
+     * 当添加新书后，可以调用此方法刷新书籍列表
+     */
+    public void refreshData() {
+        // 重置加载状态和页码
+        isLoading = false;
+        
+        // 调用ViewModel刷新数据
+        viewModel.refreshData();
     }
 } 

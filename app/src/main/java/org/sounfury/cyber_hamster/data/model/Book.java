@@ -9,6 +9,8 @@ public class Book {
      */
     private long id;
 
+//    private UserBook userBook;
+
     public Book(long id, String clcCode, String isbn, String bookName, String author, String coverUrl, String press, String pressDate, String pressPlace, String clcName, String bookDesc, String binding, String language, String format, Integer pages, String edition, String words, Long categoryId) {
         this.id = id;
         this.clcCode = clcCode;
@@ -49,6 +51,25 @@ public class Book {
      * 封面URL
      */
     private String coverUrl;
+
+    public Book() {
+
+    }
+
+    public String[] getCoverUrlArray() {
+        if (coverUrl == null) {
+            return new String[0];
+        }
+        try {
+            // 使用Gson将字符串再解析成数组
+            return new com.google.gson.Gson().fromJson(coverUrl, String[].class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new String[0];
+        }
+    }
+
+
 
     /**
      * 出版社
@@ -251,6 +272,8 @@ public class Book {
     public void setEdition(String edition) {
         this.edition = edition;
     }
+
+
 
     public String getWords() {
         return words;

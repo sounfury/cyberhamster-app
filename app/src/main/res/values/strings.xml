@@ -4,7 +4,7 @@
     
     <!-- 底部导航栏 -->
     <string name="title_home">书库</string>
-    <string name="title_category">分类</string>
+    <string name="title_category">书架</string>
     <string name="title_add">添加</string>
     <string name="title_note">笔记</string>
     <string name="title_profile">我的</string>
@@ -17,6 +17,35 @@
     <string name="category_social">社科</string>
     <string name="category_education">教育</string>
     <string name="category_economics">经济</string>
+    
+    <!-- 书架相关 -->
+    <string name="bookshelf_management">书架管理</string>
+    <string name="add_bookshelf">添加书架</string>
+    <string name="edit_bookshelf">编辑书架</string>
+    <string name="delete_bookshelf">删除书架</string>
+    <string name="bookshelf_name">书架名称</string>
+    <string name="move_to_bookshelf">分组</string>
+    <string name="select_books">选择图书</string>
+    <string name="confirm_selection">确认选择</string>
+    <string name="cancel_selection">取消选择</string>
+    <string name="book_count">%d本书</string>
+    <string name="delete_bookshelf_confirm">确定要删除这个书架吗？</string>
+    <string name="select_bookshelf">选择书架</string>
+    <string name="select_all">全选</string>
+    <string name="deselect_all">取消全选</string>
+    <string name="invert_selection">反选</string>
+    <string name="no_book_selected">请至少选择一本书</string>
+    <string name="no_category_selected">请至少选择一个书架</string>
+    <string name="move_success">成功移动到书架</string>
+    <string name="book_categories">所属书架：%s</string>
+    <string name="delete_books_confirm">确定要删除选中的图书吗？</string>
+    <string name="delete_success">删除成功</string>
+    <string name="press_info">出版社：%s</string>
+    <string name="publish_date_info">出版时间：%s</string>
+    <string name="clc_name_info">分类：%s</string>
+    <string name="clear_all">清空分类</string>
+    <string name="clear_categories">清空分类</string>
+    <string name="clear_categories_confirm">确定要清空选中图书的所有分类吗？</string>
     
     <!-- 登录注册 -->
     <string name="login">登录</string>
@@ -32,4 +61,41 @@
     <string name="save">保存</string>
     <string name="delete">删除</string>
     <string name="edit">编辑</string>
+    
+    <!-- 图书详情 -->
+    <string name="book_intro">简介</string>
+    <string name="book_notes">阅读笔记</string>
+    <string name="no_intro">暂无简介</string>
+    <string name="take_notes">做笔记</string>
+    <string name="continue_reading">继续阅读</string>
+    <string name="category">分类</string>
+    <string name="pages">页数</string>
+    <string name="language">语言</string>
+    <string name="personal_book_info">个人藏书信息</string>
+    <string name="storage_location">存放位置:</string>
+    <string name="entry_time">入库时间:</string>
+    <string name="remark">备注:</string>
+    <string name="not_specified">未指定</string>
+    <string name="book_detail_title">图书详情</string>
+    
+    <!-- 图书入库 -->
+    <string name="add_book">添加新书</string>
+    <string name="scan_barcode">扫描条形码</string>
+    <string name="take_cover_photo">拍摄封面</string>
+    <string name="search_by_isbn">输入ISBN或书名搜索</string>
+    <string name="isbn_search">在下方尝试手动输入isbn码</string>
+    <string name="isbn">ISBN</string>
+    <string name="input_isbn">输入ISBN号码</string>
+    <string name="input_storage_location">输入存放位置（选填）</string>
+    <string name="input_remark">输入备注信息（选填）</string>
+    <string name="book_name">书名</string>
+    <string name="input_book_name">输入书名</string>
+    <string name="author">作者</string>
+    <string name="input_author">输入作者</string>
+    <string name="save_to_library">保存到书库</string>
+    <string name="adding_book">正在添加图书...</string>
+    <string name="add_success">添加成功</string>
+    <string name="isbn_required">请输入ISBN号码</string>
+    <string name="book_name_required">请输入书名</string>
+    <string name="author_required">请输入作者</string>
 </resources>

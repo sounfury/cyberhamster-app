@@ -11,12 +11,9 @@ import androidx.lifecycle.MutableLiveData;
 import org.sounfury.cyber_hamster.data.UserManager;
 import org.sounfury.cyber_hamster.data.model.User;
 import org.sounfury.cyber_hamster.data.network.RetrofitClient;
-import org.sounfury.cyber_hamster.data.network.api.ApiService;
+import org.sounfury.cyber_hamster.data.network.api.UserService;
 import org.sounfury.cyber_hamster.data.network.request.LoginRequest;
 import org.sounfury.cyber_hamster.data.network.request.RegisterRequest;
-import org.sounfury.cyber_hamster.data.network.response.LoginResponse;
-import org.sounfury.cyber_hamster.data.network.response.Result;
-import org.sounfury.cyber_hamster.data.network.response.UserInfoResponse;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -33,7 +30,7 @@ public class UserRepository {
     private static final String KEY_REMEMBER = "remember_password";
 
     private static UserRepository instance;
-    private final ApiService apiService;
+    private final UserService userService;
     private final SharedPreferences sharedPreferences;
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
@@ -44,7 +41,7 @@ public class UserRepository {
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private UserRepository(Context context) {
-        apiService = RetrofitClient.getInstance().getApiService();
+        userService = RetrofitClient.getInstance().getApiService();
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         token = sharedPreferences.getString(KEY_TOKEN, "");
         loading.setValue(false);
@@ -160,7 +157,7 @@ public class UserRepository {
     private Observable<User> loginRx(String username, String password, boolean rememberMe) {
         LoginRequest request = new LoginRequest(username, password);
         
-        return apiService.login(request)
+        return userService.login(request)
                 .flatMap(result -> {
                     if (result.isSuccess() && result.getData() != null) {
                         String newToken = result.getData().getToken();
@@ -192,7 +189,7 @@ public class UserRepository {
             return Observable.error(new Exception("Token为空，无法获取用户信息"));
         }
         
-        return apiService.getUserInfo(token)
+        return userService.getUserInfo(token)
                 .map(result -> {
                     if (result.isSuccess() && result.getData() != null 
                             && result.getData().getLoginUser() != null) {
@@ -208,7 +205,7 @@ public class UserRepository {
         loading.setValue(true);
         RegisterRequest request = new RegisterRequest(username, password, email);
         
-        Disposable disposable = apiService.register(request)
+        Disposable disposable = userService.register(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(result -> {
@@ -235,7 +232,7 @@ public class UserRepository {
     }
 
     public void checkUsername(String username) {
-        Disposable disposable = apiService.checkUsername(username)
+        Disposable disposable = userService.checkUsername(username)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -283,7 +280,7 @@ public class UserRepository {
 
         loading.setValue(true);
         
-        Disposable disposable = apiService.logout(token)
+        Disposable disposable = userService.logout(token)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

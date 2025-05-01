@@ -14,4 +14,6 @@
     <color name="colorTextHint">#999999</color>
     <color name="colorDivider">#EEEEEE</color>
     <color name="colorFabBackground">#4A6FE3</color>
+    <color name="colorError">#E53935</color>
+    <color name="colorSurface">#FFFFFF</color>
 </resources>

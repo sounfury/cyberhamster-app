@@ -12,7 +12,6 @@ public class TokenInterceptor implements Interceptor {
         // 获取原本的请求
         Request originalRequest = chain.request();
 
-        // 取出保存在本地的token
         String token = UserManager.getInstance().getToken();
 
         // 如果token为空，直接走原请求

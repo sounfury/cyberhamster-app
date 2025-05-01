@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import org.sounfury.cyber_hamster.R;
 import org.sounfury.cyber_hamster.base.BaseActivity;
+import org.sounfury.cyber_hamster.data.UserManager;
 import org.sounfury.cyber_hamster.data.repository.UserRepository;
 
 import java.util.concurrent.TimeUnit;
@@ -116,6 +117,7 @@ public class SplashActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         isLoggedIn -> {
+                            UserManager.getInstance().setToken(userRepository.getToken());
                             // 淡出动画
                             startFadeOutAnimation(isLoggedIn);
                         },

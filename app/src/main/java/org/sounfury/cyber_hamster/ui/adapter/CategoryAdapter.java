@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,13 +18,15 @@ import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
     
-    private Context context;
-    private List<Category> categoryList;
-    private OnItemClickListener listener;
+    private final Context context;
+    private final List<Category> categories;
+    private OnItemClickListener onItemClickListener;
+    private OnEditClickListener onEditClickListener;
+    private OnDeleteClickListener onDeleteClickListener;
     
-    public CategoryAdapter(Context context, List<Category> categoryList) {
+    public CategoryAdapter(Context context, List<Category> categories) {
         this.context = context;
-        this.categoryList = categoryList;
+        this.categories = categories;
     }
     
     @NonNull
@@ -35,43 +38,87 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     
     @Override
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
-        Category category = categoryList.get(position);
+        Category category = categories.get(position);
         
-        // 设置分类信息
-        holder.tvName.setText(category.getName());
+        // 设置分类名称
+        holder.tvCategoryName.setText(category.getName());
+        
+        // 设置图书数量
+        if (category.getBookIds() != null) {
+            int bookCount = category.getBookIds().size();
+            holder.tvBookCount.setText(context.getString(R.string.book_count, bookCount));
+        } else {
+            holder.tvBookCount.setText(context.getString(R.string.book_count, 0));
+        }
         
         // 设置点击事件
-        holder.cardView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onItemClick(category);
+        holder.cardCategory.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(category);
+            }
+        });
+        
+        // 设置编辑按钮点击事件
+        holder.btnEdit.setOnClickListener(v -> {
+            if (onEditClickListener != null) {
+                onEditClickListener.onEditClick(category);
+            }
+        });
+        
+        // 设置删除按钮点击事件
+        holder.btnDelete.setOnClickListener(v -> {
+            if (onDeleteClickListener != null) {
+                onDeleteClickListener.onDeleteClick(category);
             }
         });
     }
     
     @Override
     public int getItemCount() {
-        return categoryList == null ? 0 : categoryList.size();
-    }
-    
-    // 设置点击监听器
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
-    }
-    
-    // 点击监听接口
-    public interface OnItemClickListener {
-        void onItemClick(Category category);
+        return categories.size();
     }
     
     // ViewHolder类
     static class CategoryViewHolder extends RecyclerView.ViewHolder {
-        CardView cardView;
-        TextView tvName;
+        CardView cardCategory;
+        TextView tvCategoryName;
+        TextView tvBookCount;
+        ImageButton btnEdit;
+        ImageButton btnDelete;
         
-        public CategoryViewHolder(@NonNull View itemView) {
+        CategoryViewHolder(@NonNull View itemView) {
             super(itemView);
-            cardView = itemView.findViewById(R.id.card_category);
-            tvName = itemView.findViewById(R.id.tv_category_name);
+            cardCategory = itemView.findViewById(R.id.card_category);
+            tvCategoryName = itemView.findViewById(R.id.tv_category_name);
+            tvBookCount = itemView.findViewById(R.id.tv_book_count);
+            btnEdit = itemView.findViewById(R.id.btn_edit);
+            btnDelete = itemView.findViewById(R.id.btn_delete);
         }
+    }
+    
+    // 点击事件接口
+    public interface OnItemClickListener {
+        void onItemClick(Category category);
+    }
+    
+    public interface OnEditClickListener {
+        void onEditClick(Category category);
+    }
+    
+    public interface OnDeleteClickListener {
+        void onDeleteClick(Category category);
+    }
+    
+    // 设置点击事件监听器
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
+    
+    public void setOnEditClickListener(OnEditClickListener listener) {
+        this.onEditClickListener = listener;
+    }
+    
+    public void setOnDeleteClickListener(OnDeleteClickListener listener) {
+        this.onDeleteClickListener = listener;
     }
 } 

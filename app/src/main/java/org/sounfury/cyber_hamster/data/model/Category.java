@@ -14,8 +14,6 @@ public class Category {
     }
 
     private String name;
-    private String description;
-
     private List<Long> bookIds;
     
     // 构造方法、getter和setter方法
@@ -39,18 +37,11 @@ public class Category {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
-    }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public Category(int id, String name, String description) {
         this.id = id;
         this.name = name;
-        this.description = description;
     }
     
     // Getter和Setter方法

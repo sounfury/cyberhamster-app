@@ -1,5 +1,7 @@
 package org.sounfury.cyber_hamster.ui.viewmodel;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -10,15 +12,23 @@ import org.sounfury.cyber_hamster.data.repository.CategoryRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class CategoryViewModel extends ViewModel {
     
     private final CategoryRepository categoryRepository;
     private final MutableLiveData<List<Category>> categoryList = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> operationSuccess = new MutableLiveData<>();
+    
+    private final CompositeDisposable disposables = new CompositeDisposable();
     
     public CategoryViewModel() {
-        // 在实际项目中，这应该通过依赖注入提供
-        this.categoryRepository = new CategoryRepository();
+        this.categoryRepository = CategoryRepository.getInstance();
         loadCategories();
     }
     
@@ -30,28 +40,128 @@ public class CategoryViewModel extends ViewModel {
         return isLoading;
     }
     
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
+    }
+    
+    public LiveData<Boolean> getOperationSuccess() {
+        return operationSuccess;
+    }
+    
     public void loadCategories() {
         isLoading.setValue(true);
         
-        // 在实际应用中，这里应该调用Repository中的异步方法获取数据
-        // 此处为简化，直接使用模拟数据
-        List<Category> categories = loadMockData();
-        categoryList.setValue(categories);
+        Disposable disposable = categoryRepository.getAllCategories()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(categories -> {
+                    categoryList.setValue(categories);
+                    isLoading.setValue(false);
+                }, throwable -> {
+                    Log.e("CategoryViewModel", "Error loading categories", throwable);
+                    errorMessage.setValue("获取书架列表失败：" + throwable.getMessage());
+                    isLoading.setValue(false);
+                });
         
-        isLoading.setValue(false);
+        disposables.add(disposable);
     }
     
-    // 加载模拟数据
-    private List<Category> loadMockData() {
-        List<Category> categories = new ArrayList<>();
+    public void createCategory(String name) {
+        isLoading.setValue(true);
         
-        // 添加一些模拟数据
-        categories.add(new Category(1, "小说", "文学小说类"));
-        categories.add(new Category(2, "科技", "科学技术类"));
-        categories.add(new Category(3, "社科", "社会科学类"));
-        categories.add(new Category(4, "教育", "教育相关类"));
-        categories.add(new Category(5, "经济", "经济管理类"));
+        Disposable disposable = categoryRepository.createCategory(name)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(category -> {
+                    if (category != null) {
+                        operationSuccess.setValue(true);
+                        loadCategories(); // 重新加载列表
+                    } else {
+                        errorMessage.setValue("创建书架失败");
+                    }
+                    isLoading.setValue(false);
+                }, throwable -> {
+                    Log.e("CategoryViewModel", "Error creating category", throwable);
+                    errorMessage.setValue("创建书架失败：" + throwable.getMessage());
+                    isLoading.setValue(false);
+                });
         
-        return categories;
+        disposables.add(disposable);
+    }
+    
+    public void updateCategory(Category category) {
+        isLoading.setValue(true);
+        
+        Disposable disposable = categoryRepository.updateCategory(category)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(updatedCategory -> {
+                    if (updatedCategory != null) {
+                        operationSuccess.setValue(true);
+                        loadCategories(); // 重新加载列表
+                    } else {
+                        errorMessage.setValue("更新书架失败");
+                    }
+                    isLoading.setValue(false);
+                }, throwable -> {
+                    Log.e("CategoryViewModel", "Error updating category", throwable);
+                    errorMessage.setValue("更新书架失败：" + throwable.getMessage());
+                    isLoading.setValue(false);
+                });
+        
+        disposables.add(disposable);
+    }
+    
+    public void deleteCategory(long categoryId) {
+        isLoading.setValue(true);
+        
+        Disposable disposable = categoryRepository.deleteCategory(categoryId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(success -> {
+                    if (success) {
+                        operationSuccess.setValue(true);
+                        loadCategories(); // 重新加载列表
+                    } else {
+                        errorMessage.setValue("删除书架失败");
+                    }
+                    isLoading.setValue(false);
+                }, throwable -> {
+                    Log.e("CategoryViewModel", "Error deleting category", throwable);
+                    errorMessage.setValue("删除书架失败：" + throwable.getMessage());
+                    isLoading.setValue(false);
+                });
+        
+        disposables.add(disposable);
+    }
+    
+//    public void addBooksToCategory(long categoryId, List<Long> bookIds) {
+//        isLoading.setValue(true);
+//
+//        Disposable disposable = categoryRepository.addBooksToCategory(categoryId, bookIds)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(success -> {
+//                    if (success) {
+//                        operationSuccess.setValue(true);
+//                    } else {
+//                        errorMessage.setValue("添加图书到书架失败");
+//                    }
+//                    isLoading.setValue(false);
+//                }, throwable -> {
+//                    Log.e("CategoryViewModel", "Error adding books to category", throwable);
+//                    errorMessage.setValue("添加图书到书架失败：" + throwable.getMessage());
+//                    isLoading.setValue(false);
+//                });
+//
+//        disposables.add(disposable);
+//    }
+    
+
+    
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        disposables.clear();
     }
 } 

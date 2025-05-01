@@ -12,13 +12,12 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
  * API服务接口，定义了与服务器交互的所有网络请求
  */
-public interface ApiService {
+public interface UserService {
     /**
      * 用户登录
      *

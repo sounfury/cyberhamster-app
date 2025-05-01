@@ -69,12 +69,13 @@
         android:scrollbars="none"
         app:layout_constraintTop_toBottomOf="@id/card_search">
 
-        <LinearLayout
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_categories"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:paddingStart="8dp"
-            android:paddingEnd="8dp">
+            android:paddingEnd="8dp"
+            app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_all"
@@ -87,51 +88,7 @@
                 android:text="@string/category_all"
                 android:textColor="@color/colorWhite" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_novel"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/category_novel"
-                android:textColor="@color/colorWhite" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_tech"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/category_tech"
-                android:textColor="@color/colorWhite" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_social"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/category_social"
-                android:textColor="@color/colorWhite" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_education"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/category_education"
-                android:textColor="@color/colorWhite" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_economics"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/category_economics"
-                android:textColor="@color/colorWhite" />
-        </LinearLayout>
+        </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
     <!-- 图书列表 -->
