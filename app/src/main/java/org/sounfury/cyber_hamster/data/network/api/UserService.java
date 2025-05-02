@@ -1,5 +1,6 @@
 package org.sounfury.cyber_hamster.data.network.api;
 
+import org.sounfury.cyber_hamster.data.network.request.ChangePasswordInput;
 import org.sounfury.cyber_hamster.data.network.request.LoginRequest;
 import org.sounfury.cyber_hamster.data.network.request.RegisterRequest;
 import org.sounfury.cyber_hamster.data.network.response.LoginResponse;
@@ -34,25 +35,23 @@ public interface UserService {
      * @return 注册响应
      */
     @POST("/register")
-    Observable<Result<Void>> register(@Body RegisterRequest request);
+    Observable<Result<String>> register(@Body RegisterRequest request);
 
     /**
      * 获取用户信息
      *
-     * @param token 用户身份验证token
      * @return 用户信息响应
      */
     @GET("/getInfo")
-    Observable<Result<UserInfoResponse>> getUserInfo(@Header("token") String token);
+    Observable<Result<UserInfoResponse>> getUserInfo();
 
     /**
      * 用户登出
      *
-     * @param token 用户身份验证token
      * @return 登出响应
      */
     @POST("/logout")
-    Observable<Result<Void>> logout(@Header("token") String token);
+    Observable<Result<Void>> logout();
 
     /**
      * 检查用户名是否可用
@@ -66,12 +65,9 @@ public interface UserService {
     /**
      * 修改密码
      *
-     * @param newPassword 新密码
-     * @param token 用户身份验证token
      * @return 修改密码响应
      */
     @PUT("/changePassword")
     Observable<Result<Void>> changePassword(
-            @Query("newPassword") String newPassword,
-            @Header("token") String token);
+            @Body ChangePasswordInput input);
 } 

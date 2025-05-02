@@ -14,6 +14,7 @@ import org.sounfury.cyber_hamster.data.network.RetrofitClient;
 import org.sounfury.cyber_hamster.data.network.api.UserService;
 import org.sounfury.cyber_hamster.data.network.request.LoginRequest;
 import org.sounfury.cyber_hamster.data.network.request.RegisterRequest;
+import org.sounfury.cyber_hamster.data.network.request.ChangePasswordInput;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -44,7 +45,7 @@ public class UserRepository {
         userService = RetrofitClient.getInstance().getApiService();
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         token = sharedPreferences.getString(KEY_TOKEN, "");
-        loading.setValue(false);
+        loading.postValue(false);
     }
 
     public static synchronized UserRepository getInstance(Context context) {
@@ -134,19 +135,19 @@ public class UserRepository {
     }
 
     public void login(String username, String password, boolean rememberMe) {
-        loading.setValue(true);
+        loading.postValue(true);
         
         Disposable disposable = loginRx(username, password, rememberMe)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         user -> {
-                            loading.setValue(false);
-                            currentUser.setValue(user);
+                            loading.postValue(false);
+                            currentUser.postValue(user);
                         },
                         throwable -> {
-                            loading.setValue(false);
-                            errorMessage.setValue("登录失败：" + throwable.getMessage());
+                            loading.postValue(false);
+                            errorMessage.postValue("登录失败：" + throwable.getMessage());
                             Log.e(TAG, "Login error", throwable);
                         }
                 );
@@ -156,6 +157,8 @@ public class UserRepository {
     
     private Observable<User> loginRx(String username, String password, boolean rememberMe) {
         LoginRequest request = new LoginRequest(username, password);
+        //先清除token
+        clearToken();
         
         return userService.login(request)
                 .flatMap(result -> {
@@ -189,7 +192,7 @@ public class UserRepository {
             return Observable.error(new Exception("Token为空，无法获取用户信息"));
         }
         
-        return userService.getUserInfo(token)
+        return userService.getUserInfo()
                 .map(result -> {
                     if (result.isSuccess() && result.getData() != null 
                             && result.getData().getLoginUser() != null) {
@@ -201,9 +204,9 @@ public class UserRepository {
                 });
     }
 
-    public void register(String username, String password, String email) {
-        loading.setValue(true);
-        RegisterRequest request = new RegisterRequest(username, password, email);
+    public void register(String username, String password, String email,String nickname) {
+        loading.postValue(true);
+        RegisterRequest request = new RegisterRequest(username, password, email,nickname);
         
         Disposable disposable = userService.register(request)
                 .subscribeOn(Schedulers.io())
@@ -218,12 +221,12 @@ public class UserRepository {
                 })
                 .subscribe(
                         user -> {
-                            loading.setValue(false);
-                            currentUser.setValue(user);
+                            loading.postValue(false);
+                            currentUser.postValue(user);
                         },
                         throwable -> {
-                            loading.setValue(false);
-                            errorMessage.setValue("注册失败：" + throwable.getMessage());
+                            loading.postValue(false);
+                            errorMessage.postValue("注册失败：" + throwable.getMessage());
                             Log.e(TAG, "Register error", throwable);
                         }
                 );
@@ -253,19 +256,19 @@ public class UserRepository {
             return;
         }
 
-        loading.setValue(true);
+        loading.postValue(true);
         
         Disposable disposable = fetchUserInfoRx()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         user -> {
-                            loading.setValue(false);
-                            currentUser.setValue(user);
+                            loading.postValue(false);
+                            currentUser.postValue(user);
                         },
                         throwable -> {
-                            loading.setValue(false);
-                            errorMessage.setValue("获取用户信息失败：" + throwable.getMessage());
+                            loading.postValue(false);
+                            errorMessage.postValue("获取用户信息失败：" + throwable.getMessage());
                             Log.e(TAG, "Fetch user info error", throwable);
                         }
                 );
@@ -278,35 +281,59 @@ public class UserRepository {
             return;
         }
 
-        loading.setValue(true);
+        loading.postValue(true);
         
-        Disposable disposable = userService.logout(token)
+        Disposable disposable = userService.logout()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         result -> {
-                            loading.setValue(false);
+                            loading.postValue(false);
                             clearToken();
-                            currentUser.setValue(null);
+                            currentUser.postValue(null);
                         },
                         throwable -> {
-                            loading.setValue(false);
+                            loading.postValue(false);
                             Log.e(TAG, "Logout error", throwable);
                             // 即使请求失败，也清除本地登录状态
                             clearToken();
-                            currentUser.setValue(null);
+                            currentUser.postValue(null);
                         }
                 );
         
         compositeDisposable.add(disposable);
     }
 
-    public void changePassword(Long userId, String newPassword) {
-        if (TextUtils.isEmpty(token) || userId == null) {
+    public void changePassword(String oldPassword, String newPassword) {
+        if (TextUtils.isEmpty(token)) {
             return;
         }
 
-        // 需要根据API调整实现
+        loading.postValue(true);
+        
+        ChangePasswordInput input = new ChangePasswordInput(oldPassword, newPassword);
+        Disposable disposable = userService.changePassword(input)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        result -> {
+                            loading.postValue(false);
+                            if (result.isSuccess()) {
+                                // 密码修改成功
+                                errorMessage.postValue("密码修改成功");
+                            } else {
+                                // 密码修改失败
+                                errorMessage.postValue("密码修改失败：" + result.getMessage());
+                            }
+                        },
+                        throwable -> {
+                            loading.postValue(false);
+                            errorMessage.postValue("密码修改失败：" + throwable.getMessage());
+                            Log.e(TAG, "Change password error", throwable);
+                        }
+                );
+        
+        compositeDisposable.add(disposable);
     }
 
     private void saveToken(String token) {
@@ -322,6 +349,7 @@ public class UserRepository {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(KEY_TOKEN);
         editor.apply();
+        UserManager.getInstance().setToken(token);
     }
 
     private void saveCredentials(String username, String password, boolean rememberMe) {

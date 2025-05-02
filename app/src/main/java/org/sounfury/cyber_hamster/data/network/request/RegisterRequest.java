@@ -10,11 +10,17 @@ public class RegisterRequest {
     private String email;
     private String nickname;
     
-    public RegisterRequest(String username, String password, String email) {
+    public RegisterRequest(String username, String password, String email,String nickname) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.nickname = nickname;
+    }
+
+    public RegisterRequest(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
     }
     
     // Getter和Setter方法

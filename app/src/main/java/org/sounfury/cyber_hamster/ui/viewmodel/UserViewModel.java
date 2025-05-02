@@ -39,7 +39,7 @@ public class UserViewModel extends AndroidViewModel {
     }
     
     public void register(String username, String password, String email, String nickname) {
-        userRepository.register(username, password, email);
+        userRepository.register(username, password, email,nickname);
     }
     
     public void logout() {
@@ -50,8 +50,8 @@ public class UserViewModel extends AndroidViewModel {
         userRepository.checkUsername(username);
     }
     
-    public void changePassword(Long userId, String newPassword) {
-        userRepository.changePassword(userId, newPassword);
+    public void changePassword(String oldPassword, String newPassword) {
+        userRepository.changePassword(oldPassword, newPassword);
     }
     
     public void loadSavedCredentials() {

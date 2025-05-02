@@ -1,0 +1,583 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "library",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/login": {
+      "post": {
+        "summary": "login",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "description": "",
+            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE",
+            "schema": {
+              "type": "string",
+              "default": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultMapString"
+                },
+                "example": {
+                  "code": "",
+                  "message": "",
+                  "data": {
+                    "": ""
+                  },
+                  "requestId": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/register": {
+      "post": {
+        "summary": "register",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "description": "",
+            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE",
+            "schema": {
+              "type": "string",
+              "default": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInsertInput",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultString",
+                  "description": ""
+                },
+                "example": {
+                  "code": "",
+                  "message": "",
+                  "data": "",
+                  "requestId": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/checkUsername": {
+      "get": {
+        "summary": "检查用户名是否存在",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "description": "",
+            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE",
+            "schema": {
+              "type": "string",
+              "default": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultBoolean",
+                  "description": "True: 存在 False: 不存在"
+                },
+                "example": {
+                  "code": "",
+                  "message": "",
+                  "data": false,
+                  "requestId": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "退出登录",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "description": "",
+            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE",
+            "schema": {
+              "type": "string",
+              "default": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                },
+                "example": {
+                  "code": "",
+                  "message": "",
+                  "data": null,
+                  "requestId": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/getInfo": {
+      "get": {
+        "summary": "获取登陆用户详细信息",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "description": "",
+            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE",
+            "schema": {
+              "type": "string",
+              "default": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUserInfo"
+                },
+                "example": {
+                  "code": "",
+                  "message": "",
+                  "data": {
+                    "loginUser": {
+                      "id": 0,
+                      "username": "",
+                      "password": "",
+                      "email": "",
+                      "createTime": "",
+                      "updateTime": ""
+                    },
+                    "permissions": [
+                      ""
+                    ],
+                    "roles": [
+                      ""
+                    ]
+                  },
+                  "requestId": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/changePassword": {
+      "post": {
+        "summary": "修改密码",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "createTime",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "updateTime",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "avatar",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nickname",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "description": "",
+            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE",
+            "schema": {
+              "type": "string",
+              "default": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjEsInJuU3RyIjoiUlpweWZVMGlYUXZXaVVaM1doRnZNdEFtYVRpNFliZFgifQ.b6clonkP24LrcLLrnvtQgKZfM6HD6WmXilwpHkSpGnE"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                },
+                "example": {
+                  "code": "",
+                  "message": "",
+                  "data": null,
+                  "requestId": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MapString": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultMapString": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "返回码"
+          },
+          "message": {
+            "type": "string",
+            "description": "返回消息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MapString",
+            "description": "响应数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求ID"
+          }
+        }
+      },
+      "LoginInput": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": ""
+          },
+          "password": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ResultString": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "返回码"
+          },
+          "message": {
+            "type": "string",
+            "description": "返回消息"
+          },
+          "data": {
+            "type": "string",
+            "description": "响应数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求ID"
+          }
+        }
+      },
+      "ResultBoolean": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "返回码"
+          },
+          "message": {
+            "type": "string",
+            "description": "返回消息"
+          },
+          "data": {
+            "type": "boolean",
+            "description": "响应数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求ID"
+          }
+        }
+      },
+      "ResultVoid": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "返回码"
+          },
+          "message": {
+            "type": "string",
+            "description": "返回消息"
+          },
+          "data": {
+            "description": "响应数据",
+            "type": "null"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求ID"
+          }
+        }
+      },
+      "UserListView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "createTime": {
+            "type": "string",
+            "description": ""
+          },
+          "updateTime": {
+            "type": "string",
+            "description": ""
+          },
+          "username": {
+            "type": "string",
+            "description": ""
+          },
+          "password": {
+            "type": "string",
+            "description": ""
+          },
+          "email": {
+            "type": "string",
+            "description": ""
+          },
+          "avatar": {
+            "type": "string",
+            "description": ""
+          },
+          "nickname": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "UserInfo": {
+        "type": "object",
+        "properties": {
+          "loginUser": {
+            "$ref": "#/components/schemas/UserListView",
+            "description": ""
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": ""
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        }
+      },
+      "ResultUserInfo": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "返回码"
+          },
+          "message": {
+            "type": "string",
+            "description": "返回消息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserInfo",
+            "description": "响应数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求ID"
+          }
+        }
+      },
+      "UserInsertInput": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": ""
+          },
+          "password": {
+            "type": "string",
+            "description": ""
+          },
+          "email": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}

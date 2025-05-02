@@ -16,7 +16,7 @@ import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static String BASE_URL = "http://192.168.170.57:8082/";
+    private static String BASE_URL = "http://192.168.1.15:8082/";
     private static final int CONNECT_TIMEOUT = 15;
     private static final int READ_TIMEOUT = 15;
     private static final int WRITE_TIMEOUT = 15;
