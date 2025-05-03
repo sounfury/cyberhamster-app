@@ -63,7 +63,7 @@
     <string name="edit">编辑</string>
     
     <!-- 图书详情 -->
-    <string name="book_intro">简介</string>
+    <string name="book_description">简介</string>
     <string name="book_notes">阅读笔记</string>
     <string name="no_intro">暂无简介</string>
     <string name="take_notes">做笔记</string>

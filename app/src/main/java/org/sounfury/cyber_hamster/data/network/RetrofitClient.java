@@ -74,4 +74,8 @@ public class RetrofitClient {
     public CategoryService getCategoryService() {
         return retrofit.create(CategoryService.class);
     }
-} 
+
+    public NoteService createNoteService() {
+        return retrofit.create(NoteService.class);
+    }
+}

@@ -10,7 +10,7 @@
     <color name="colorBackground">#FFFFFF</color>
     <color name="colorButtonBlue">#4A6FE3</color>
     <color name="colorTextPrimary">#333333</color>
-    <color name="colorTextSecondary">#666666</color>
+    <color name="colorTextSecondary">#adb5bd</color>
     <color name="colorTextHint">#999999</color>
     <color name="colorDivider">#EEEEEE</color>
     <color name="colorFabBackground">#4A6FE3</color>

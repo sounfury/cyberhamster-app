@@ -77,6 +77,7 @@ dependencies {
 
     // Glide的核心库
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.swiperefreshlayout)
 
     // Glide编译时注解处理器（可选，生成一些帮助代码，推荐一起加上）
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")

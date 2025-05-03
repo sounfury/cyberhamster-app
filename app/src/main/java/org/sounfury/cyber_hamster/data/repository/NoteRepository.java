@@ -1,79 +1,72 @@
 package org.sounfury.cyber_hamster.data.repository;
 
 import org.sounfury.cyber_hamster.data.model.Note;
+import org.sounfury.cyber_hamster.data.network.RetrofitClient;
+import org.sounfury.cyber_hamster.data.network.api.NoteService;
+import org.sounfury.cyber_hamster.data.network.response.Result;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Observable;
+
 public class NoteRepository {
     
-    // 获取所有笔记
-    public List<Note> getAllNotes() {
-        // 实际项目中，这里应该从网络或数据库获取数据
-        // 此处使用模拟数据
-        return getMockNotes();
+    private final NoteService noteService;
+    
+    public NoteRepository() {
+        this.noteService = RetrofitClient.getInstance().getNoteService();
     }
     
-    // 根据书籍ID获取笔记
-    public List<Note> getNotesByBookId(int bookId) {
-        List<Note> allNotes = getMockNotes();
-        List<Note> filteredNotes = new ArrayList<>();
-        
-        for (Note note : allNotes) {
-            if (note.getBookId() == bookId) {
-                filteredNotes.add(note);
-            }
-        }
-        
-        return filteredNotes;
+    /**
+     * 获取所有笔记（游标分页）
+     * @param lastId 上一页最后一个笔记的ID，首次加载传null
+     */
+    public Observable<Result<List<Note>>> getAllNotes(Long lastId) {
+        return noteService.getAllNotes(lastId);
     }
     
-    // 根据ID获取笔记
-    public Note getNoteById(int id) {
-        List<Note> notes = getMockNotes();
-        for (Note note : notes) {
-            if (note.getId() == id) {
-                return note;
-            }
-        }
-        return null;
+    /**
+     * 根据书籍ID获取笔记
+     */
+    public Observable<Result<List<Note>>> getNotesByBookId(long bookId) {
+        return noteService.searchNotes(bookId, null, null, null);
     }
     
-    // 添加笔记
-    public boolean addNote(Note note) {
-        // 实现添加笔记的逻辑
-        return true;
+    /**
+     * 获取最近的笔记
+     */
+    public Observable<Result<List<Note>>> getRecentNotes(long bookId) {
+        return noteService.getRecentNotes(bookId);
     }
     
-    // 更新笔记
-    public boolean updateNote(Note note) {
-        // 实现更新笔记的逻辑
-        return true;
+    /**
+     * 根据笔记ID获取笔记详情
+     */
+    public Observable<Result<Note>> getNoteById(long noteId) {
+        return noteService.getNoteById(noteId);
     }
     
-    // 删除笔记
-    public boolean deleteNote(int id) {
-        // 实现删除笔记的逻辑
-        return true;
+    /**
+     * 保存或更新笔记
+     * 当note.id为0或null时为创建，否则为更新
+     */
+    public Observable<Result<Void>> saveNote(Note note) {
+        return noteService.saveNote(note);
     }
     
-    // 获取模拟数据
-    private List<Note> getMockNotes() {
-        List<Note> notes = new ArrayList<>();
-        
-        notes.add(new Note(1, 1, "《Cracking the Coding Interview》读书笔记", 
-                "这本书讲解了许多面试中常见的算法问题...", new Date(), new Date()));
-        
-        notes.add(new Note(2, 2, "图灵的贡献", 
-                "图灵在计算机科学中的贡献是无法估量的...", new Date(), new Date()));
-        
-        notes.add(new Note(3, 3, "余华《活着》感想", 
-                "这本书展现了人在逆境中的坚强...", new Date(), new Date()));
-        
-        notes.add(new Note(4, 4, "解忧杂货店读后感", 
-                "这本书通过一个神奇的杂货店，讲述了几个互不相关的人生故事...", new Date(), new Date()));
-        
-        return notes;
+    /**
+     * 删除笔记
+     */
+    public Observable<Result<Void>> deleteNote(long noteId) {
+        return noteService.deleteNote(noteId);
+    }
+    
+    /**
+     * 搜索笔记
+     */
+    public Observable<Result<List<Note>>> searchNotes(Long bookId, String content, String startTime, String endTime) {
+        return noteService.searchNotes(bookId, content, startTime, endTime);
     }
 } 

@@ -45,6 +45,9 @@ public class UserRepository {
         userService = RetrofitClient.getInstance().getApiService();
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         token = sharedPreferences.getString(KEY_TOKEN, "");
+        if(!TextUtils.isEmpty(token)) {
+            UserManager.getInstance().setToken(token);
+        }
         loading.postValue(false);
     }
 
@@ -340,6 +343,7 @@ public class UserRepository {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_TOKEN, token);
         editor.apply();
+        Log.i(TAG, "Token saved: " + token);
         //全局存储
         UserManager.getInstance().setToken(token);
     }

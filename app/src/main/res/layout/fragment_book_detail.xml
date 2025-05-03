@@ -331,18 +331,20 @@
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
-            <!-- 简介标题 -->
+            <!-- 简介区域 -->
             <TextView
                 android:id="@+id/tv_intro_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
-                android:text="@string/book_intro"
+                android:text="@string/book_description"
                 android:textColor="@color/colorTextPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ll_button_container" />
 
             <!-- 简介内容 -->
@@ -361,38 +363,202 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:text="简介" />
 
-            <!-- 阅读笔记标题 -->
-            <TextView
-                android:id="@+id/tv_notes_title"
+            <!-- 阅读笔记区域 - 恢复卡片样式 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_notes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="@string/book_notes"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp"
                 app:layout_constraintTop_toBottomOf="@id/tv_book_intro"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
-            <!-- 笔记内容示例 -->
-            <TextView
-                android:id="@+id/tv_note_example"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="24dp"
-                android:lineSpacingExtra="4dp"
-                android:text="弱小和无知不是生存的障碍，傲慢才是。这句话深刻揭示了人类面对未知宇宙应有的态度"
-                android:textColor="@color/colorTextSecondary"
-                android:textSize="14sp"
-                app:layout_constraintTop_toBottomOf="@id/tv_notes_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- 阅读笔记标题 -->
+                    <TextView
+                        android:id="@+id/tv_notes_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/book_notes"
+                        android:textColor="@color/colorTextPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                        
+                    <!-- 最近笔记提示文本 -->
+                    <TextView
+                        android:id="@+id/tv_recent_notes_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="显示最近3条笔记"
+                        android:textColor="@color/colorTextSecondary"
+                        android:textSize="12sp" />
+
+                    <!-- 笔记项布局1 -->
+                    <LinearLayout
+                        android:id="@+id/ll_note_item_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="8dp"
+                        android:visibility="gone"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tv_note_title_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorTextPrimary"
+                            android:textSize="16sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            tools:text="《读三体第一章的感想》" />
+
+                        <TextView
+                            android:id="@+id/tv_note_summary_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="14sp"
+                            android:maxLines="2"
+                            android:ellipsize="end"
+                            tools:text="这本书的开篇让我印象深刻，作者刘慈欣通过文革背景引入了一个非常有深度的故事..." />
+
+                        <TextView
+                            android:id="@+id/tv_note_time_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="12sp"
+                            tools:text="记录于2023-05-04 12:30" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@color/colorDivider" />
+                    </LinearLayout>
+
+                    <!-- 笔记项布局2 -->
+                    <LinearLayout
+                        android:id="@+id/ll_note_item_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:visibility="gone"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tv_note_title_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorTextPrimary"
+                            android:textSize="16sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            tools:text="《三体中的物理学概念》" />
+
+                        <TextView
+                            android:id="@+id/tv_note_summary_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="14sp"
+                            android:maxLines="2"
+                            android:ellipsize="end"
+                            tools:text="三体中有很多关于物理学的概念，比如三体问题、智子等，这些都是作者对现实物理学的延伸..." />
+
+                        <TextView
+                            android:id="@+id/tv_note_time_2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="12sp"
+                            tools:text="记录于2023-05-03 18:45" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@color/colorDivider" />
+                    </LinearLayout>
+
+                    <!-- 笔记项布局3 -->
+                    <LinearLayout
+                        android:id="@+id/ll_note_item_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:visibility="gone"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tv_note_title_3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorTextPrimary"
+                            android:textSize="16sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            tools:text="《对三体结局的思考》" />
+
+                        <TextView
+                            android:id="@+id/tv_note_summary_3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="14sp"
+                            android:maxLines="2"
+                            android:ellipsize="end"
+                            tools:text="三体的结局让人回味无穷，作者通过这个结局表达了对人类未来的思考..." />
+
+                        <TextView
+                            android:id="@+id/tv_note_time_3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="12sp"
+                            tools:text="记录于2023-05-01 20:15" />
+                    </LinearLayout>
+
+                    <!-- 无笔记时显示 -->
+                    <TextView
+                        android:id="@+id/tv_no_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="暂无笔记，点击上方按钮开始做笔记"
+                        android:gravity="center"
+                        android:textColor="@color/colorTextSecondary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
