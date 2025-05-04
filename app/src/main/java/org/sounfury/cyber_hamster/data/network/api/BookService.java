@@ -6,6 +6,7 @@ import org.sounfury.cyber_hamster.data.network.page.PageQuery;
 import org.sounfury.cyber_hamster.data.network.page.PageResult;
 import org.sounfury.cyber_hamster.data.network.request.BookListQuery;
 import org.sounfury.cyber_hamster.data.network.request.InboundInput;
+import org.sounfury.cyber_hamster.data.network.request.ReadStatusUpdateDTO;
 import org.sounfury.cyber_hamster.data.network.response.GroupedBooks;
 import org.sounfury.cyber_hamster.data.network.response.Result;
 
@@ -13,6 +14,7 @@ import io.reactivex.rxjava3.core.Observable;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -38,5 +40,12 @@ public interface BookService {
     //分页 待分组的图书，在书架管理里用
     @POST("/api/user-book/list-toGrouped")
     Observable<Result<PageResult<GroupedBooks>>> listBooksToGrouped(@Body PageQuery<GroupedBooks> pageQuery);
+
+
+    /**
+     * 更改图书阅读状态
+     */
+    @PUT("/api/user-book/read-status")
+    Observable<Result<Void>> updateReadStatus(@Body ReadStatusUpdateDTO readStatusUpdateDTO);
 
 }

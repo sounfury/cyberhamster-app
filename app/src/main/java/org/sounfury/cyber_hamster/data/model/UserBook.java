@@ -8,8 +8,39 @@ public class UserBook {
     private String entryTime;
     //  备注
     private String remark;
+
+    private Integer readStatus;
+
+    private String startTime;
+
+    private String finishTime;
+
     // 图书
     private Book book;
+
+    public Integer getReadStatus() {
+        return readStatus;
+    }
+
+    public void setReadStatus(Integer readStatus) {
+        this.readStatus = readStatus;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(String finishTime) {
+        this.finishTime = finishTime;
+    }
 
     public UserBook() {
     }

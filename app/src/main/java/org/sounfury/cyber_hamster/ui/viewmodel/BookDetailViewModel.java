@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 import org.sounfury.cyber_hamster.data.model.Book;
 import org.sounfury.cyber_hamster.data.model.Note;
 import org.sounfury.cyber_hamster.data.model.UserBook;
+import org.sounfury.cyber_hamster.data.network.request.ReadStatusUpdateDTO;
 import org.sounfury.cyber_hamster.data.repository.BookRepository;
 import org.sounfury.cyber_hamster.data.repository.NoteRepository;
 
@@ -30,6 +31,7 @@ public class BookDetailViewModel extends ViewModel {
     private final MutableLiveData<List<Note>> recentNotes = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> readStatusUpdateSuccess = new MutableLiveData<>();
 
     private final CompositeDisposable disposables = new CompositeDisposable();
 
@@ -56,6 +58,10 @@ public class BookDetailViewModel extends ViewModel {
 
     public LiveData<String> getErrorMessage() {
         return errorMessage;
+    }
+
+    public LiveData<Boolean> getReadStatusUpdateSuccess() {
+        return readStatusUpdateSuccess;
     }
 
     /**
@@ -104,6 +110,51 @@ public class BookDetailViewModel extends ViewModel {
                     errorMessage.setValue("获取最近笔记失败：" + throwable.getMessage());
                 });
 
+        disposables.add(disposable);
+    }
+
+    /**
+     * 更新图书阅读状态
+     *
+     * @param userBookId 用户图书ID
+     * @param readStatus 阅读状态
+     */
+    public void updateReadStatus(Long userBookId, Integer readStatus) {
+        if (userBookId == null) {
+            errorMessage.setValue("图书ID不能为空");
+            return;
+        }
+        
+        // 先重置更新状态，避免重复触发
+        readStatusUpdateSuccess.setValue(null);
+        
+        isLoading.setValue(true);
+        ReadStatusUpdateDTO updateDTO = new ReadStatusUpdateDTO(userBookId, readStatus);
+        
+        Disposable disposable = bookRepository.updateReadStatus(updateDTO)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {
+                    isLoading.setValue(false);
+                    if (result != null && result.isSuccess()) {
+                        readStatusUpdateSuccess.setValue(true);
+                        // 更新本地UserBook的阅读状态
+                        UserBook currentUserBook = userBook.getValue();
+                        if (currentUserBook != null) {
+                            currentUserBook.setReadStatus(readStatus);
+                            userBook.setValue(currentUserBook);
+                        }
+                    } else {
+                        readStatusUpdateSuccess.setValue(false);
+                        errorMessage.setValue("更新阅读状态失败：" + (result != null ? result.getMessage() : "未知错误"));
+                    }
+                }, throwable -> {
+                    isLoading.setValue(false);
+                    readStatusUpdateSuccess.setValue(false);
+                    errorMessage.setValue("更新阅读状态失败：" + throwable.getMessage());
+                    Log.e(TAG, "更新阅读状态失败", throwable);
+                });
+                
         disposables.add(disposable);
     }
 

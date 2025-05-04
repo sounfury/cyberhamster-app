@@ -14,6 +14,7 @@ import org.sounfury.cyber_hamster.data.network.request.BookListQuery;
 import org.sounfury.cyber_hamster.data.network.response.GroupedBooks;
 import org.sounfury.cyber_hamster.data.network.page.PageResult;
 import org.sounfury.cyber_hamster.data.network.request.InboundInput;
+import org.sounfury.cyber_hamster.data.network.request.ReadStatusUpdateDTO;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -120,5 +121,14 @@ public class BookRepository {
      */
     public Observable<Result<Void>> inboundBook(InboundInput inboundInput) {
         return bookService.inbound(inboundInput);
+    }
+    
+    /**
+     * 更新图书阅读状态
+     * @param readStatusUpdateDTO 阅读状态更新请求体
+     * @return 更新结果
+     */
+    public Observable<Result<Void>> updateReadStatus(ReadStatusUpdateDTO readStatusUpdateDTO) {
+        return bookService.updateReadStatus(readStatusUpdateDTO);
     }
 } 

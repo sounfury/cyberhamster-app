@@ -17,11 +17,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.sounfury.cyber_hamster.R;
 import org.sounfury.cyber_hamster.base.BaseFragment;
+import org.sounfury.cyber_hamster.data.enums.ReadStatusEnum;
 import org.sounfury.cyber_hamster.data.model.Book;
 import org.sounfury.cyber_hamster.data.model.Note;
 import org.sounfury.cyber_hamster.data.model.UserBook;
@@ -48,12 +50,14 @@ public class BookDetailFragment extends BaseFragment {
     private TextView tvLanguage;
     private TextView tvBookIntro;
     private Button btnTakeNotes;
-    private Button btnContinueReading;
+    private Button btnReadStatus;
     
     // UserBook信息相关UI组件
     private TextView tvStorageLocation;
     private TextView tvEntryTime;
     private TextView tvRemark;
+    private TextView tvStartTime;
+    private TextView tvFinishTime;
     
     // 最近笔记相关UI组件
     private TextView tvNoNotes;
@@ -70,6 +74,10 @@ public class BookDetailFragment extends BaseFragment {
     private TextView tvNoteTime1;
     private TextView tvNoteTime2;
     private TextView tvNoteTime3;
+    
+    // 阅读状态相关变量
+    private Integer currentReadStatus;
+    private BottomSheetDialog readStatusDialog;
     
     // 底部导航栏和悬浮按钮
     private BottomNavigationView bottomNav;
@@ -172,12 +180,14 @@ public class BookDetailFragment extends BaseFragment {
         tvLanguage = view.findViewById(R.id.tv_language);
         tvBookIntro = view.findViewById(R.id.tv_book_intro);
         btnTakeNotes = view.findViewById(R.id.btn_take_notes);
-        btnContinueReading = view.findViewById(R.id.btn_continue_reading);
+        btnReadStatus = view.findViewById(R.id.btn_read_status);
         
         // 初始化UserBook相关UI组件
         tvStorageLocation = view.findViewById(R.id.tv_storage_location);
         tvEntryTime = view.findViewById(R.id.tv_entry_time);
         tvRemark = view.findViewById(R.id.tv_remark);
+        tvStartTime = view.findViewById(R.id.tv_start_time);
+        tvFinishTime = view.findViewById(R.id.tv_finish_time);
         
         // 初始化最近笔记相关UI组件
         tvNoNotes = view.findViewById(R.id.tv_no_notes);
@@ -214,8 +224,8 @@ public class BookDetailFragment extends BaseFragment {
             }
         });
         
-        btnContinueReading.setOnClickListener(v -> 
-            Toast.makeText(requireContext(), "继续阅读功能尚未实现", Toast.LENGTH_SHORT).show());
+        // 设置阅读状态按钮点击事件
+        btnReadStatus.setOnClickListener(v -> showReadStatusDialog());
     }
 
     @Override
@@ -281,6 +291,12 @@ public class BookDetailFragment extends BaseFragment {
             return;
         }
         
+        // 保存当前的阅读状态
+        currentReadStatus = userBook.getReadStatus();
+        
+        // 更新阅读状态按钮的文本
+        updateReadStatusButtonText();
+        
         // 设置物理位置
         if (!TextUtils.isEmpty(userBook.getStorageLocation())) {
             tvStorageLocation.setText(userBook.getStorageLocation());
@@ -301,6 +317,20 @@ public class BookDetailFragment extends BaseFragment {
         } else {
             tvRemark.setText(R.string.not_specified);
         }
+        
+        // 设置开始阅读时间
+        if (!TextUtils.isEmpty(userBook.getStartTime())) {
+            tvStartTime.setText(userBook.getStartTime());
+        } else {
+            tvStartTime.setText(R.string.not_specified);
+        }
+        
+        // 设置完成阅读时间
+        if (!TextUtils.isEmpty(userBook.getFinishTime())) {
+            tvFinishTime.setText(userBook.getFinishTime());
+        } else {
+            tvFinishTime.setText(R.string.not_specified);
+        }
     }
     
     /**
@@ -310,6 +340,8 @@ public class BookDetailFragment extends BaseFragment {
         tvStorageLocation.setText(R.string.not_specified);
         tvEntryTime.setText(R.string.not_specified);
         tvRemark.setText(R.string.not_specified);
+        tvStartTime.setText(R.string.not_specified);
+        tvFinishTime.setText(R.string.not_specified);
     }
 
     /**
@@ -416,5 +448,104 @@ public class BookDetailFragment extends BaseFragment {
 
     private void showError(String errorMessage) {
         Snackbar.make(requireView(), errorMessage, Snackbar.LENGTH_LONG).show();
+    }
+    
+    /**
+     * 显示阅读状态选择对话框
+     */
+    private void showReadStatusDialog() {
+        readStatusDialog = new BottomSheetDialog(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_read_status, null);
+        readStatusDialog.setContentView(dialogView);
+        
+        // 获取对话框中的各个组件
+        LinearLayout llUnread = dialogView.findViewById(R.id.ll_unread);
+        LinearLayout llReading = dialogView.findViewById(R.id.ll_reading);
+        LinearLayout llRead = dialogView.findViewById(R.id.ll_read);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
+        
+        ImageView ivUnreadCheck = dialogView.findViewById(R.id.iv_unread_check);
+        ImageView ivReadingCheck = dialogView.findViewById(R.id.iv_reading_check);
+        ImageView ivReadCheck = dialogView.findViewById(R.id.iv_read_check);
+        
+        // 根据当前阅读状态显示选中状态
+        if (currentReadStatus != null) {
+            switch (currentReadStatus) {
+                case 0: // 未读
+                    ivUnreadCheck.setVisibility(View.VISIBLE);
+                    break;
+                case 1: // 在读
+                    ivReadingCheck.setVisibility(View.VISIBLE);
+                    break;
+                case 2: // 已读
+                    ivReadCheck.setVisibility(View.VISIBLE);
+                    break;
+            }
+        }
+        
+        // 设置点击事件
+        llUnread.setOnClickListener(v -> updateReadStatus(ReadStatusEnum.UNREAD.getCode()));
+        llReading.setOnClickListener(v -> updateReadStatus(ReadStatusEnum.READING.getCode()));
+        llRead.setOnClickListener(v -> updateReadStatus(ReadStatusEnum.READ.getCode()));
+        btnCancel.setOnClickListener(v -> readStatusDialog.dismiss());
+        
+        readStatusDialog.show();
+    }
+    
+    /**
+     * 更新阅读状态
+     */
+    private void updateReadStatus(Integer readStatus) {
+        if (readStatus == null || (currentReadStatus != null && readStatus.equals(currentReadStatus))) {
+            readStatusDialog.dismiss();
+            return;
+        }
+        
+        // 获取当前UserBook的ID
+        UserBook currentUserBook = viewModel.getUserBook().getValue();
+        if (currentUserBook == null) {
+            showError("无法获取图书信息");
+            return;
+        }
+        
+        // 移除之前的观察者，避免多次回调
+        viewModel.getReadStatusUpdateSuccess().removeObservers(getViewLifecycleOwner());
+        
+        // 调用ViewModel更新阅读状态
+        viewModel.updateReadStatus(currentUserBook.getId(), readStatus);
+        
+        // 监听更新结果
+        viewModel.getReadStatusUpdateSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                // 更新成功，关闭对话框
+                readStatusDialog.dismiss();
+                // 更新当前状态
+                currentReadStatus = readStatus;
+                // 更新阅读状态按钮文本
+                updateReadStatusButtonText();
+                // 显示成功提示
+                Toast.makeText(requireContext(), "阅读状态更新成功", Toast.LENGTH_SHORT).show();
+                // 移除观察者，防止重复触发
+                viewModel.getReadStatusUpdateSuccess().removeObservers(getViewLifecycleOwner());
+            }
+        });
+    }
+    
+    /**
+     * 根据当前阅读状态更新按钮文本
+     */
+    private void updateReadStatusButtonText() {
+        if (currentReadStatus == null) {
+            btnReadStatus.setText(R.string.update_read_status);
+            return;
+        }
+        
+        ReadStatusEnum readStatusEnum = ReadStatusEnum.fromCode(currentReadStatus);
+        if (readStatusEnum != null) {
+            String buttonText = "阅读状态：" + readStatusEnum.getDesc();
+            btnReadStatus.setText(buttonText);
+        } else {
+            btnReadStatus.setText(R.string.update_read_status);
+        }
     }
 } 

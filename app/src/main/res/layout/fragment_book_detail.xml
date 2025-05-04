@@ -286,6 +286,68 @@
                             android:textSize="14sp"
                             tools:text="这是一本非常珍贵的签名版" />
                     </LinearLayout>
+                    
+                    <!-- 开始阅读时间 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_calendar"
+                            app:tint="@color/colorPrimary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/start_time"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tv_start_time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:textColor="@color/colorTextPrimary"
+                            android:textSize="14sp"
+                            tools:text="2023-07-01" />
+                    </LinearLayout>
+                    
+                    <!-- 完成阅读时间 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_calendar"
+                            app:tint="@color/colorPrimary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/finish_time"
+                            android:textColor="@color/colorTextSecondary"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tv_finish_time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:textColor="@color/colorTextPrimary"
+                            android:textSize="14sp"
+                            tools:text="2023-07-15" />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -315,19 +377,19 @@
                     android:text="@string/take_notes"
                     android:textColor="@color/colorWhite" />
 
-                <!-- 继续阅读按钮 -->
+                <!-- 阅读状态按钮（原继续阅读按钮） -->
                 <Button
-                    android:id="@+id/btn_continue_reading"
+                    android:id="@+id/btn_read_status"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_button_primary"
+                    android:background="@drawable/bg_ripple_effect"
                     android:drawableStart="@drawable/ic_read"
                     android:drawablePadding="8dp"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
-                    android:text="@string/continue_reading"
+                    android:text="@string/update_read_status"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 

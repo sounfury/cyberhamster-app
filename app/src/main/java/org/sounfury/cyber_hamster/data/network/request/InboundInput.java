@@ -4,6 +4,7 @@ package org.sounfury.cyber_hamster.data.network.request;
 public class InboundInput {
     private String isbn;
 
+
     public String getIsbn() {
         return isbn;
     }
