@@ -4,7 +4,10 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
+
+import com.jeremyliao.liveeventbus.LiveEventBus;
 
 import org.sounfury.cyber_hamster.data.model.Book;
 import org.sounfury.cyber_hamster.data.model.Category;
@@ -31,6 +34,14 @@ public class HomeViewModel extends ViewModel {
     
     private final CompositeDisposable disposables = new CompositeDisposable();
     
+    // 保存观察者引用以便在onCleared()中移除
+    private final Observer<Boolean> bookAddedObserver = isSuccess -> {
+        if (isSuccess) {
+            // 图书入库成功，刷新数据
+            refreshData();
+        }
+    };
+    
     private int currentPage = 0;
     private boolean hasMoreData = true;
     private List<Book> currentBooks = new ArrayList<>();
@@ -39,8 +50,12 @@ public class HomeViewModel extends ViewModel {
         this.bookRepository = BookRepository.getInstance();
         this.categoryRepository = CategoryRepository.getInstance();
         loadCategories();
-        loadBooks();
+        loadHomeBooks();
         selectedCategory.setValue(0); // 默认选中全部分类
+        
+        // 订阅图书入库成功事件
+        LiveEventBus.get(AddBookViewModel.EVENT_BOOK_ADDED, Boolean.class)
+                .observeForever(bookAddedObserver);
     }
     
     public LiveData<List<Book>> getBookList() {
@@ -94,7 +109,7 @@ public class HomeViewModel extends ViewModel {
         disposables.add(disposable);
     }
 
-    public void loadBooks() {
+    public void loadHomeBooks() {
         if (!hasMoreData) {
             return;
         }
@@ -135,7 +150,7 @@ public class HomeViewModel extends ViewModel {
             if (categoryId != null && categoryId > 0) {
                 loadBooksByCategory(categoryId);
             } else {
-                loadBooks();
+                loadHomeBooks();
             }
         }
     }
@@ -145,6 +160,10 @@ public class HomeViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
         disposables.clear();
+        
+        // 移除LiveEventBus观察者以防止内存泄漏
+        LiveEventBus.get(AddBookViewModel.EVENT_BOOK_ADDED, Boolean.class)
+                .removeObserver(bookAddedObserver);
     }
 
     private void filterBooksByCategory(int categoryId) {
@@ -152,7 +171,7 @@ public class HomeViewModel extends ViewModel {
         
         if (categoryId == 0) {
             // 如果是"全部"分类，加载所有图书
-            loadBooks();
+            loadHomeBooks();
         } else {
             // 按照选中的分类加载图书
             loadBooksByCategory(categoryId);
@@ -206,7 +225,7 @@ public class HomeViewModel extends ViewModel {
         if (categoryId != null && categoryId > 0) {
             loadBooksByCategory(categoryId);
         } else {
-            loadBooks();
+            loadHomeBooks();
         }
     }
 } 

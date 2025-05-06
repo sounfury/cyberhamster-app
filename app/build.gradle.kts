@@ -82,6 +82,8 @@ dependencies {
     // Glide编译时注解处理器（可选，生成一些帮助代码，推荐一起加上）
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
+    // LiveEventBus
+    implementation ("com.github.michaellee123:LiveEventBus:1.8.14")
 
     implementation(libs.appcompat)
     implementation(libs.material)

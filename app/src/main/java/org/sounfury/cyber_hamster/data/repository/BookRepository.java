@@ -57,7 +57,7 @@ public class BookRepository {
                 });
     }
     
-    // 获取待分组的图书列表
+    // 获取获取待变更分组的图书列表
     public Observable<List<GroupedBooks>> getBooksToGroup(int currentPage) {
         // 创建查询对象
         PageQuery<GroupedBooks> pageQuery = new PageQuery<>(currentPage, pageSize);
@@ -75,7 +75,7 @@ public class BookRepository {
                 });
     }
     
-    // 根据ID获取图书
+    // 根据ID获取图书详情
     public Observable<UserBook> getBookById(long id) {
         return bookService.getBookById(id)
                 .subscribeOn(Schedulers.io())

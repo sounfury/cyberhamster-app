@@ -69,7 +69,7 @@ public class BookDetailViewModel extends ViewModel {
      *
      * @param bookId 图书ID
      */
-    public void loadBook(long bookId) {
+    public void loadBookDetail(long bookId) {
         isLoading.setValue(true);
 
         Disposable disposable = bookRepository.getBookById(bookId)

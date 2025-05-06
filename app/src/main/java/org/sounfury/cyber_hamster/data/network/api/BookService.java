@@ -37,7 +37,7 @@ public interface BookService {
     @GET("/api/user-book/{id}")
     Observable<Result<UserBook>> getBookById(@Path("id") long id);
 
-    //分页 待分组的图书，在书架管理里用
+    //分页 获取待变更分组的图书,即用户当前的全部分组，在书架管理里用
     @POST("/api/user-book/list-toGrouped")
     Observable<Result<PageResult<GroupedBooks>>> listBooksToGrouped(@Body PageQuery<GroupedBooks> pageQuery);
 

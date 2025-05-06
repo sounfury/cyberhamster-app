@@ -4,15 +4,15 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
-import org.sounfury.cyber_hamster.R;
-import org.sounfury.cyber_hamster.data.model.Category;
+import com.jeremyliao.liveeventbus.LiveEventBus;
+
 import org.sounfury.cyber_hamster.data.network.response.GroupedBooks;
 import org.sounfury.cyber_hamster.data.repository.BookRepository;
 import org.sounfury.cyber_hamster.data.repository.CategoryRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -31,12 +31,26 @@ public class BookshelfViewModel extends ViewModel {
     
     private final CompositeDisposable disposables = new CompositeDisposable();
     
+    // 保存观察者引用以便在onCleared()中移除
+    private final Observer<Boolean> bookAddedObserver = isSuccess -> {
+        if (isSuccess) {
+            // 图书入库成功，刷新数据
+            // 重置页码并重新加载数据
+            currentPage = 0;
+            loadBooksToGrouped();
+        }
+    };
+    
     private int currentPage = 0;
     private boolean hasMoreData = true;
     
     public BookshelfViewModel() {
         this.bookRepository = BookRepository.getInstance();
         this.categoryRepository = CategoryRepository.getInstance();
+        
+        // 订阅图书入库成功事件
+        LiveEventBus.get(AddBookViewModel.EVENT_BOOK_ADDED, Boolean.class)
+                .observeForever(bookAddedObserver);
     }
     
     public LiveData<List<GroupedBooks>> getBookList() {
@@ -55,7 +69,7 @@ public class BookshelfViewModel extends ViewModel {
         return operationSuccess;
     }
     
-    public void loadBooks() {
+    public void loadBooksToGrouped() {
         isLoading.setValue(true);
         
         Disposable disposable = bookRepository.getBooksToGroup(currentPage)
@@ -78,7 +92,7 @@ public class BookshelfViewModel extends ViewModel {
             return;
         }
         currentPage++;
-        loadBooks();
+        loadBooksToGrouped();
     }
     
     // 将书籍添加到分类
@@ -95,7 +109,7 @@ public class BookshelfViewModel extends ViewModel {
                         } else {
                             operationSuccess.setValue("成功添加到书架");
                         }
-                        loadBooks(); // 刷新列表
+                        loadBooksToGrouped(); // 刷新列表
                     } else {
                         errorMessage.setValue("操作失败");
                     }
@@ -123,7 +137,7 @@ public class BookshelfViewModel extends ViewModel {
                         } else {
                             operationSuccess.setValue("成功添加到书架");
                         }
-                        loadBooks(); // 刷新列表
+                        loadBooksToGrouped(); // 刷新列表
                     } else {
                         errorMessage.setValue("操作失败");
                     }
@@ -148,12 +162,16 @@ public class BookshelfViewModel extends ViewModel {
         
         // 刷新列表
         currentPage = 0;
-        loadBooks();
+        loadBooksToGrouped();
     }
     
     @Override
     protected void onCleared() {
         super.onCleared();
         disposables.clear();
+        
+        // 移除LiveEventBus观察者以防止内存泄漏
+        LiveEventBus.get(AddBookViewModel.EVENT_BOOK_ADDED, Boolean.class)
+                .removeObserver(bookAddedObserver);
     }
 } 

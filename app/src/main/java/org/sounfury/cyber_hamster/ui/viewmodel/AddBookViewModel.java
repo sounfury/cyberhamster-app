@@ -7,11 +7,16 @@ import androidx.lifecycle.ViewModel;
 import org.sounfury.cyber_hamster.data.network.request.InboundInput;
 import org.sounfury.cyber_hamster.data.repository.BookRepository;
 
+import com.jeremyliao.liveeventbus.LiveEventBus;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class AddBookViewModel extends ViewModel {
+    
+    // 定义事件通道常量
+    public static final String EVENT_BOOK_ADDED = "event_book_added";
     
     private BookRepository bookRepository;
     private CompositeDisposable disposables = new CompositeDisposable();
@@ -61,6 +66,8 @@ public class AddBookViewModel extends ViewModel {
                             isLoading.setValue(false);
                             if (result.isSuccess()) {
                                 addSuccess.setValue(true);
+                                // 使用LiveEventBus发送事件通知，通知首页和书架页刷新
+                                LiveEventBus.get(EVENT_BOOK_ADDED).post(true);
                             } else {
                                 errorMessage.setValue(result.getMessage());
                             }

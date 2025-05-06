@@ -140,7 +140,7 @@ public class BookshelfManagementFragment extends BaseFragment {
         viewModel.getOperationSuccess().observe(getViewLifecycleOwner(), message -> {
             if (message != null && !message.isEmpty()) {
                 Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show();
-                viewModel.loadBooks(); // 刷新列表
+                viewModel.loadBooksToGrouped(); // 刷新列表
             }
         });
     }
@@ -223,7 +223,7 @@ public class BookshelfManagementFragment extends BaseFragment {
     @Override
     protected void initData() {
         // 加载数据
-        viewModel.loadBooks();
+        viewModel.loadBooksToGrouped();
         categoryViewModel.loadCategories();
     }
     

@@ -128,8 +128,8 @@ public class BookDetailFragment extends BaseFragment {
             }
         });
 
-        // 加载图书数据
-        viewModel.loadBook(bookId);
+        // 加载详细图书数据
+        viewModel.loadBookDetail(bookId);
         
         // 隐藏底部导航栏
         hideBottomNav();
