@@ -105,7 +105,6 @@ public class SplashActivity extends BaseActivity {
      * 检查登录状态并决定跳转到哪个页面
      */
     private void checkLoginStatus() {
-        // 用来确保至少显示MIN_DISPLAY_TIME的时间
         Observable<Long> timerObservable = Observable.timer(MIN_DISPLAY_TIME, TimeUnit.MILLISECONDS);
         
         // 检查登录状态的Observable

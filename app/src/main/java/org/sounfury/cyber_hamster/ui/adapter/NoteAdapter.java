@@ -82,7 +82,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             if (note.getUpdateTime() != null) {
                 Date date = inputFormat.parse(note.getUpdateTime());
                 if (date != null) {
-                    Log.d("NoteAdapter", "Parsed date: " + date);
                     formattedDate = formatDateBasedOnAge(date);
                 }
             }
@@ -124,20 +123,16 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         boolean isToday = (calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)) &&
                 (calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR));
 
-        //打印
-        Log.d("NoteAdapter", "isToday: " + isToday);
-        Log.d("NoteAdapter", "isThisYear: " + (calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)));
-        Log.d("NoteAdapter", "isToday: " + (calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)));
         boolean isThisYear = calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR);
         
         if (isToday) {
-            Log.d("NoteAdapter", "Date is today: " + date);
+
             return todayFormat.format(date);
         } else if (isThisYear) {
-            Log.d("NoteAdapter", "Date is this year: " + date);
+
             return thisYearFormat.format(date);
         } else {
-            Log.d("NoteAdapter", "Date is older: " + date);
+
             return fullDateFormat.format(date);
         }
     }
@@ -148,10 +143,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
      * @return 显示行数
      */
     private int getRandomMaxLines(String summary) {
-        // 根据内容长度和随机因素确定显示行数
-        //>10 2行
-        // 10-20 3行
-        // 20-30 4行，如此类推
         int length = summary.length();
         return 2 + (length / 10) + 1;
     }

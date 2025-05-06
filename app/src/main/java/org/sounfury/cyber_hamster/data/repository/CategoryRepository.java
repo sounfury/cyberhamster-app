@@ -59,17 +59,11 @@ public class CategoryRepository {
     }
 
     // 创建新分类
-    public Observable<Category> createCategory(String name) {
+    public Observable<Boolean> createCategory(String name) {
         return categoryService.createCategory(name)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(result -> {
-                    if (result != null && result.isSuccess() && result.getData() != null) {
-                        return result.getData();
-                    } else {
-                        return null;
-                    }
-                });
+                .map(result -> result != null && result.isSuccess());
     }
     
     // 更新分类

@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.jeremyliao.liveeventbus.LiveEventBus;
+
 import org.sounfury.cyber_hamster.data.model.Category;
 import org.sounfury.cyber_hamster.data.repository.CategoryRepository;
 
@@ -18,6 +20,9 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class CategoryViewModel extends ViewModel {
+    
+    // 定义事件标识常量
+    public static final String EVENT_CATEGORY_CHANGED = "event_category_changed";
     
     private final CategoryRepository categoryRepository;
     private final MutableLiveData<List<Category>> categoryList = new MutableLiveData<>();
@@ -72,10 +77,12 @@ public class CategoryViewModel extends ViewModel {
         Disposable disposable = categoryRepository.createCategory(name)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(category -> {
-                    if (category != null) {
+                .subscribe(isSuccess-> {
+                    if (isSuccess) {
                         operationSuccess.setValue(true);
                         loadCategories(); // 重新加载列表
+                        // 发送分类变更事件
+                        LiveEventBus.get(EVENT_CATEGORY_CHANGED).post(true);
                     } else {
                         errorMessage.setValue("创建书架失败");
                     }
@@ -99,6 +106,8 @@ public class CategoryViewModel extends ViewModel {
                     if (updatedCategory != null) {
                         operationSuccess.setValue(true);
                         loadCategories(); // 重新加载列表
+                        // 发送分类变更事件
+                        LiveEventBus.get(EVENT_CATEGORY_CHANGED).post(true);
                     } else {
                         errorMessage.setValue("更新书架失败");
                     }
@@ -122,6 +131,8 @@ public class CategoryViewModel extends ViewModel {
                     if (success) {
                         operationSuccess.setValue(true);
                         loadCategories(); // 重新加载列表
+                        // 发送分类变更事件
+                        LiveEventBus.get(EVENT_CATEGORY_CHANGED).post(true);
                     } else {
                         errorMessage.setValue("删除书架失败");
                     }
@@ -134,29 +145,6 @@ public class CategoryViewModel extends ViewModel {
         
         disposables.add(disposable);
     }
-    
-//    public void addBooksToCategory(long categoryId, List<Long> bookIds) {
-//        isLoading.setValue(true);
-//
-//        Disposable disposable = categoryRepository.addBooksToCategory(categoryId, bookIds)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(success -> {
-//                    if (success) {
-//                        operationSuccess.setValue(true);
-//                    } else {
-//                        errorMessage.setValue("添加图书到书架失败");
-//                    }
-//                    isLoading.setValue(false);
-//                }, throwable -> {
-//                    Log.e("CategoryViewModel", "Error adding books to category", throwable);
-//                    errorMessage.setValue("添加图书到书架失败：" + throwable.getMessage());
-//                    isLoading.setValue(false);
-//                });
-//
-//        disposables.add(disposable);
-//    }
-    
 
     
     @Override

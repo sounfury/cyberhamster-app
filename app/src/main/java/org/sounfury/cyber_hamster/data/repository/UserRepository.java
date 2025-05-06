@@ -36,6 +36,8 @@ public class UserRepository {
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>();
+    private final MutableLiveData<Long> bookCount = new MutableLiveData<>();
+    private final MutableLiveData<Long> noteCount = new MutableLiveData<>();
     private String token;
     
     // 用于管理RxJava订阅
@@ -68,6 +70,14 @@ public class UserRepository {
 
     public LiveData<Boolean> isLoading() {
         return loading;
+    }
+
+    public LiveData<Long> getBookCount() {
+        return bookCount;
+    }
+
+    public LiveData<Long> getNoteCount() {
+        return noteCount;
     }
 
     public String getToken() {
@@ -379,5 +389,39 @@ public class UserRepository {
         if (!compositeDisposable.isDisposed()) {
             compositeDisposable.dispose();
         }
+    }
+
+    /**
+     * 加载用户书籍和笔记统计信息
+     */
+    public void loadProfileStats() {
+        if (TextUtils.isEmpty(token)) {
+            errorMessage.postValue("请先登录");
+            return;
+        }
+        
+        loading.postValue(true);
+        
+        Disposable disposable = userService.getProfileStats()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        result -> {
+                            loading.postValue(false);
+                            if (result.isSuccess() && result.getData() != null) {
+                                bookCount.postValue(result.getData().getBookCount());
+                                noteCount.postValue(result.getData().getNoteCount());
+                            } else {
+                                errorMessage.postValue("获取统计数据失败：" + result.getMessage());
+                            }
+                        },
+                        throwable -> {
+                            loading.postValue(false);
+                            errorMessage.postValue("获取统计数据失败：" + throwable.getMessage());
+                            Log.e(TAG, "Get profile stats error", throwable);
+                        }
+                );
+        
+        compositeDisposable.add(disposable);
     }
 }

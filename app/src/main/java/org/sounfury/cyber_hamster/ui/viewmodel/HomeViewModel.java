@@ -42,6 +42,16 @@ public class HomeViewModel extends ViewModel {
         }
     };
     
+    // 分类变更事件的观察者
+    private final Observer<Boolean> categoryChangedObserver = isSuccess -> {
+        if (isSuccess) {
+            // 分类发生变化，重新加载分类数据
+            loadCategories();
+            Log.i("HomeViewModel", "Category changed, refreshing categories");
+            
+        }
+    };
+    
     private int currentPage = 0;
     private boolean hasMoreData = true;
     private List<Book> currentBooks = new ArrayList<>();
@@ -56,6 +66,10 @@ public class HomeViewModel extends ViewModel {
         // 订阅图书入库成功事件
         LiveEventBus.get(AddBookViewModel.EVENT_BOOK_ADDED, Boolean.class)
                 .observeForever(bookAddedObserver);
+        
+        // 订阅分类变更事件
+        LiveEventBus.get(CategoryViewModel.EVENT_CATEGORY_CHANGED, Boolean.class)
+                .observeForever(categoryChangedObserver);
     }
     
     public LiveData<List<Book>> getBookList() {
@@ -164,6 +178,10 @@ public class HomeViewModel extends ViewModel {
         // 移除LiveEventBus观察者以防止内存泄漏
         LiveEventBus.get(AddBookViewModel.EVENT_BOOK_ADDED, Boolean.class)
                 .removeObserver(bookAddedObserver);
+        
+        // 移除分类变更事件观察者
+        LiveEventBus.get(CategoryViewModel.EVENT_CATEGORY_CHANGED, Boolean.class)
+                .removeObserver(categoryChangedObserver);
     }
 
     private void filterBooksByCategory(int categoryId) {

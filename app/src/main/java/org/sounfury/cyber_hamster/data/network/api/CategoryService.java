@@ -37,7 +37,7 @@ public interface CategoryService {
      * 创建分类
      */
     @POST("/api/book-category")
-    Observable<Result<Category>> createCategory(@Query("categoryName") String name);
+    Observable<Result<Void>> createCategory(@Query("categoryName") String name);
 
     /**
      * 更新分类

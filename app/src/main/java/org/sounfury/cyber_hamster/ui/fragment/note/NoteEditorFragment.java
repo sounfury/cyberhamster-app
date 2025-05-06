@@ -54,6 +54,11 @@ public class NoteEditorFragment extends BaseFragment {
     private ImageButton btnRedo;
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("M月d日 HH:mm", Locale.getDefault());
+    {
+        //设置上海时区
+        dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Shanghai"));
+    }
+
     private Note currentNote;
     private Date currentDate;
 

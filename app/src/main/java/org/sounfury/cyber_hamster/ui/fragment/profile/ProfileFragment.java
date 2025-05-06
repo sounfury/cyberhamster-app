@@ -80,21 +80,32 @@ public class ProfileFragment extends BaseFragment {
             }
         });
         
-//        viewModel.getBookCount().observe(getViewLifecycleOwner(), count -> {
-//            if (count != null) {
-//                tvBookCount.setText("书籍: " + count);
-//            }
-//        });
-//
-//        viewModel.getNoteCount().observe(getViewLifecycleOwner(), count -> {
-//            if (count != null) {
-//                tvNoteCount.setText("笔记: " + count);
-//            }
-//        });
-//
-//        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-//            // 可以在这里显示或隐藏加载指示器
-//        });
+        // 观察书籍和笔记数量
+        viewModel.getBookCount().observe(getViewLifecycleOwner(), count -> {
+            if (count != null) {
+                tvBookCount.setText("书籍: " + count);
+            }
+        });
+
+        viewModel.getNoteCount().observe(getViewLifecycleOwner(), count -> {
+            if (count != null) {
+                tvNoteCount.setText("笔记: " + count);
+            }
+        });
+
+        viewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            // 可以在这里显示或隐藏加载指示器
+            // 例如: progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        });
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 每次回到页面时重新加载统计数据
+        if (viewModel != null && viewModel.isLoggedIn()) {
+            viewModel.loadProfileStats();
+        }
     }
     
     @Override
@@ -110,7 +121,10 @@ public class ProfileFragment extends BaseFragment {
     
     @Override
     protected void initData() {
-        // 加载数据由ViewModel负责
+        // 加载用户统计数据
+        if (viewModel != null && viewModel.isLoggedIn()) {
+            viewModel.loadProfileStats();
+        }
     }
     
     /**

@@ -4,6 +4,7 @@ import org.sounfury.cyber_hamster.data.network.request.ChangePasswordInput;
 import org.sounfury.cyber_hamster.data.network.request.LoginRequest;
 import org.sounfury.cyber_hamster.data.network.request.RegisterRequest;
 import org.sounfury.cyber_hamster.data.network.response.LoginResponse;
+import org.sounfury.cyber_hamster.data.network.response.ProfileStatsDTO;
 import org.sounfury.cyber_hamster.data.network.response.Result;
 import org.sounfury.cyber_hamster.data.network.response.UserInfoResponse;
 
@@ -70,4 +71,14 @@ public interface UserService {
     @PUT("/changePassword")
     Observable<Result<Void>> changePassword(
             @Body ChangePasswordInput input);
+
+
+    /**
+     * 获取用户书籍笔记数量
+     *
+     * @return 用户书籍笔记数量响应
+     */
+    @GET("/api/profile/stats")
+    Observable<Result<ProfileStatsDTO>> getProfileStats();
+
 } 

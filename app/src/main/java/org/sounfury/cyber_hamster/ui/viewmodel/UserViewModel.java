@@ -57,4 +57,19 @@ public class UserViewModel extends AndroidViewModel {
     public void loadSavedCredentials() {
         userRepository.loadSavedCredentials();
     }
+    
+    // 获取书籍数量
+    public LiveData<Long> getBookCount() {
+        return userRepository.getBookCount();
+    }
+    
+    // 获取笔记数量
+    public LiveData<Long> getNoteCount() {
+        return userRepository.getNoteCount();
+    }
+    
+    // 加载个人资料统计数据
+    public void loadProfileStats() {
+        userRepository.loadProfileStats();
+    }
 } 
